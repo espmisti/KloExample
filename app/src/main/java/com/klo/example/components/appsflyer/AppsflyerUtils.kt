@@ -1,6 +1,5 @@
 package com.klo.example.components.appsflyer
 
-import android.app.Application
 import android.content.Context
 import com.appsflyer.AppsFlyerLib
 import com.google.android.gms.ads.identifier.AdvertisingIdClient

@@ -37,7 +37,7 @@ class SplashActivity : AppCompatActivity() {
         ScreenUtils().setFull(window)
         if(isInternetConnection(applicationContext)){
             if(sPrefs.getString("last_url", null) != null){
-                startActivity(Intent(applicationContext, MainActivity::class.java).putExtra("organic", false))
+                startActivity(Intent(this, MainActivity::class.java).putExtra("organic", false))
                 finish()
             } else {
                 model.initViewModel()
@@ -45,7 +45,7 @@ class SplashActivity : AppCompatActivity() {
                 model.finished.observe(this, observer)
             }
         } else {
-            startActivity(Intent(applicationContext, MainActivity::class.java).putExtra("organic", true))
+            startActivity(Intent(this, MainActivity::class.java).putExtra("organic", true))
             finish()
         }
 
@@ -98,18 +98,8 @@ class SplashActivity : AppCompatActivity() {
         }
         return false
     }
-
-    override fun onPause() {
-        super.onPause()
-        Log.i("APP_CHECK", "onPause")
-    }
-    override fun onResume() {
-        super.onResume()
-        Log.i("APP_CHECK", "onResume: ${model.finished.hasActiveObservers()}")
-    }
     override fun onStop() {
         super.onStop()
-        Log.i("APP_CHECK", "onStop")
-        model.finished.removeObserver(observer)
+        if(model.finished.hasActiveObservers()) model.finished.removeObserver(observer)
     }
 }

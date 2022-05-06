@@ -2,7 +2,9 @@ package com.klo.example.utils
 
 object Constants {
     const val URL = ""
+    // Setting's
     const val APPSFLYER = ""
+    const val ONE_SIGNAL_ID = ""
 
     // For Logs
     const val APP_CHECK = "LOG_CHECK"

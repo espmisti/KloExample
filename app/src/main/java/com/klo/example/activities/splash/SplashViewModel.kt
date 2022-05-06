@@ -11,11 +11,11 @@ import com.klo.example.components.appsflyer.AppsflyerUtils
 import com.klo.example.components.url.DeeplinkChecker
 import com.klo.example.components.url.ParamUtils
 import com.klo.example.utils.Constants
+import com.onesignal.OneSignal
 import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 
 class SplashViewModel(application: Application) : AndroidViewModel(application) {
-
     private var af_campaign: String? = null
     private var fb_campaign: String? = null
     private var af_adset_id: String? = null
@@ -29,6 +29,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
 
     fun initViewModel(){
         viewModelScope.launch {
+            initialOneSignalNotification()
             getDeepLinks()
             when{
                 af_campaign != null -> {
@@ -47,6 +48,10 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         campaign.value = DeeplinkChecker().getSubs(_campaign)
         campaign_id.value = af_campaign_id
         adset_id.value = af_adset_id
+    }
+    private fun initialOneSignalNotification() {
+        OneSignal.initWithContext(getApplication())
+        OneSignal.setAppId(Constants.ONE_SIGNAL_ID)
     }
     private suspend fun getDeepLinks() = suspendCancellableCoroutine<Unit> {
         if(af_campaign != null || fb_campaign != null){

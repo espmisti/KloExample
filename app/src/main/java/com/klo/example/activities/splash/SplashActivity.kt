@@ -37,7 +37,7 @@ class SplashActivity : AppCompatActivity() {
         ScreenUtils().setFull(window)
         if(isInternetConnection(applicationContext)){
             if(sPrefs.getString("last_url", null) != null){
-                startActivity(Intent(this, MainActivity::class.java).putExtra("organic", false))
+                startActivity(Intent(this, WebViewActivity::class.java).putExtra("organic", false))
                 finish()
             } else {
                 model.initViewModel()

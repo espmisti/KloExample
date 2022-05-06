@@ -4,4 +4,4 @@
 - Standart
 
 # Описание видов:
-#### ▫️ Standart - Appsflyer/DeepLink открытие ссылки с неймингом
+#### ▫️ Standart - Appsflyer/DeepLink открытие ссылки с неймингом + инициализация OneSignal

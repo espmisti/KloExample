@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -56,7 +55,8 @@ class SplashActivity : AppCompatActivity() {
                 val url = createURL(
                     model.campaign.value!!,
                     model.campaign_id.value.toString(),
-                    model.adset_id.value.toString()
+                    model.adset_id.value.toString(),
+                    model.af_adid.value.toString()
                 )
                 with(sPrefs.edit()){
                     putString("last_url", url)
@@ -76,7 +76,7 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun createURL(sub: HashMap<Int, String>, campaign_id: String, adset_id: String) : String = withContext(Dispatchers.IO){
+    private suspend fun createURL(sub: HashMap<Int, String>, campaign_id: String, adset_id: String, af_ad_id: String) : String = withContext(Dispatchers.IO){
         val tM = applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         return@withContext ParamUtils().replace_param(
             sub,
@@ -84,6 +84,7 @@ class SplashActivity : AppCompatActivity() {
             AppsflyerUtils().getAppsflyerId(applicationContext),
             campaign_id,
             adset_id,
+            af_ad_id,
             applicationContext.packageName,
             tM.networkCountryIso
         )

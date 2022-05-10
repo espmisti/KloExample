@@ -2,6 +2,7 @@
 
 import com.klo.example.components.url.URLConstants.ADVERTISING_ID
 import com.klo.example.components.url.URLConstants.AF_ADSET_ID
+import com.klo.example.components.url.URLConstants.AF_AD_ID
 import com.klo.example.components.url.URLConstants.AF_C_ID
 import com.klo.example.components.url.URLConstants.APPSFLYER_ID
 import com.klo.example.components.url.URLConstants.GEO
@@ -16,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ParamUtils {
-    suspend fun replace_param(sub: HashMap<Int, String>, advertising_id: String, appsflyer_id: String, campaign_id: String, adset_id: String, sys_package: String, geo: String) : String = withContext(Dispatchers.IO){
+    suspend fun replace_param(sub: HashMap<Int, String>, advertising_id: String, appsflyer_id: String, campaign_id: String, adset_id: String, sys_package: String, geo: String, af_ad_id: String) : String = withContext(Dispatchers.IO){
         var url = generateUrl()
         with(url){
             if(contains(SUB1)) url = url.replace(SUB1, sub[0].toString())
@@ -32,10 +33,9 @@ class ParamUtils {
 
             if(contains(PACKAGE)) url = url.replace(PACKAGE, sys_package)
             if(contains(GEO)) url = url.replace(GEO, geo)
+            if(contains(AF_AD_ID)) url = url.replace(AF_AD_ID, af_ad_id)
         }
         return@withContext url
     }
-    private fun generateUrl() : String {
-        return "${Constants.URL}?$SUB1&$SUB2&$SUB3&$SUB4&$SUB5&$ADVERTISING_ID&$APPSFLYER_ID&$AF_C_ID&$AF_ADSET_ID&$PACKAGE&$GEO"
-    }
+    private fun generateUrl() = "${Constants.URL}?sub1=$SUB1&sub2=$SUB2&sub3=$SUB3&sub4=$SUB4&sub5=$SUB5&advertising_id=$ADVERTISING_ID&af_id=$APPSFLYER_ID&af_c_id=$AF_C_ID&af_adset_id=$AF_ADSET_ID&af_ad_id=$AF_AD_ID&package=$PACKAGE&geo=$GEO"
 }

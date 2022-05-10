@@ -12,6 +12,7 @@ object URLConstants {
     val APPSFLYER_ID = "param_af_id"
     val AF_C_ID = "param_af_c_id"
     val AF_ADSET_ID = "param_adset_id"
+    val AF_AD_ID = "param_af_ad_id"
     // Системные
     val PACKAGE = "param_package"
     val GEO = "param_geo"

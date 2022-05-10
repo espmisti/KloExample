@@ -1,4 +1,4 @@
-# KLO EXAMPLE KOTLIN v.1.0 🎗️
+# KLO EXAMPLE KOTLIN v.1.2 🎗️
 
 #### Доступные виды:
 - Standart

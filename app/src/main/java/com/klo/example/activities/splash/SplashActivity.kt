@@ -67,7 +67,7 @@ class SplashActivity : AppCompatActivity() {
                         .putExtra("url", url)
                         .putExtra("organic", false))
                     finish()
-                    Log.i("APP_CHECK", "DONBASS: ${model.campaign.value} + ${model.campaign_id.value} + ${model.adset_id.value} + $url")
+                    Log.i("APP_CHECK", "check: ${model.campaign.value} + ${model.campaign_id.value} + ${model.adset_id.value} + $url")
                 }
             }
         } else {
@@ -84,9 +84,9 @@ class SplashActivity : AppCompatActivity() {
             AppsflyerUtils().getAppsflyerId(applicationContext),
             campaign_id,
             adset_id,
-            af_ad_id,
             applicationContext.packageName,
-            tM.networkCountryIso
+            tM.networkCountryIso,
+            af_ad_id
         )
     }
     private fun isInternetConnection(context: Context): Boolean {

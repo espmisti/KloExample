@@ -51,12 +51,12 @@ dependencies {
     // C O R O U T I N E S
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-beta01"
-
     // A P P S F L Y E R
     implementation 'com.appsflyer:af-android-sdk:6.5.4'
-
     // S H A R E D  P R E F E R E N C E
     implementation "androidx.security:security-crypto:1.1.0-alpha03"
     // O N E  S I G N A L
     implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
+    // F A C E B O O K
+    implementation 'com.facebook.android:facebook-android-sdk:latest.release'
 }

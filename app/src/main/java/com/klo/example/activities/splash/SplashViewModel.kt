@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
+import com.facebook.FacebookSdk
+import com.facebook.applinks.AppLinkData
 import com.klo.example.components.appsflyer.AppsflyerUtils
 import com.klo.example.components.url.DeeplinkChecker
 import com.klo.example.components.url.ParamUtils
@@ -34,6 +36,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             initialOneSignalNotification()
             getCampaign()
+            initialFacebookDeepLink()
             when{
                 af_campaign != null -> {
                     saveData(af_campaign!!)
@@ -57,6 +60,17 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         OneSignal.initWithContext(getApplication())
         OneSignal.setAppId(Constants.ONE_SIGNAL_ID)
     }
+    private suspend fun initialFacebookDeepLink() = suspendCancellableCoroutine<Unit>{
+        FacebookSdk.setApplicationId(Constants.FB_APP_ID)
+        FacebookSdk.setClientToken(Constants.FB_CLIENT_TOKEN)
+        FacebookSdk.sdkInitialize(getApplication())
+        FacebookSdk.setAutoInitEnabled(true)
+        FacebookSdk.fullyInitialize()
+        AppLinkData.fetchDeferredAppLinkData(getApplication(), AppLinkData.CompletionHandler { appLink ->
+            if(appLink?.targetUri != null) fb_campaign = (appLink.targetUri).toString().substringAfter("//")
+            it.resume(Unit)
+        })
+    }
     private suspend fun getCampaign() = suspendCancellableCoroutine<Unit> {
         val conversionListener = object : AppsFlyerConversionListener {
             override fun onConversionDataSuccess(conversionData: MutableMap<String, Any>) {
@@ -72,7 +86,9 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             }
             override fun onAppOpenAttribution(attributionData: MutableMap<String, String>?) {
                 it.resume(Unit)
-                fb_campaign = attributionData?.get("host")
+                if(attributionData?.get("host") != null)
+                    fb_campaign = attributionData["host"]
+
             }
             override fun onAttributionFailure(errorMessage: String?) {
                 it.resume(Unit)

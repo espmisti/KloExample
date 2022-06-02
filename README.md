@@ -2,7 +2,6 @@
 
 #### Доступные виды:
 - Standart
-- Background
 - Referrer
 
 # Описание видов:

@@ -72,6 +72,10 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         })
     }
     private suspend fun getCampaign() = suspendCancellableCoroutine<Unit> {
+        if(af_campaign != null){
+            it.resume(Unit)
+            return@suspendCancellableCoroutine
+        }
         val conversionListener = object : AppsFlyerConversionListener {
             override fun onConversionDataSuccess(conversionData: MutableMap<String, Any>) {
                 it.resume(Unit)

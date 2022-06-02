@@ -8,7 +8,7 @@ class DeeplinkChecker {
         val map = hashMapOf<Int, String>()
         if(campaign.contains("_")){
             val char_array = campaign.split("_")
-            if(char_array.size < 5) {
+            if(char_array.size <= 5) {
                 for (item in char_array.indices){
                     map[item] = char_array[item]
                 }

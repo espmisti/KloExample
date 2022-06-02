@@ -9,7 +9,4 @@ object Constants {
     const val FB_APP_ID = ""
     const val FB_CLIENT_TOKEN = ""
 
-    // For Logs
-    const val APP_CHECK = "LOG_CHECK"
-    const val SETTING_CHECK = "SETTING_CHECK"
 }

@@ -11,6 +11,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.KloExam">
         <meta-data
@@ -23,8 +25,8 @@
             />
         <activity
             android:name=".presentation.main.MainActivity"
-            android:hardwareAccelerated="true"
             android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

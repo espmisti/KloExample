@@ -13,8 +13,8 @@ import com.klo.example.domain.repository.AppsflyerRepository
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class AppsflyerDataRepository (private val context: Context,  private val appsflyer: String) : AppsflyerRepository {
-    override suspend fun getData(): AppsflyerModel? {
+class AppsflyerDataRepository (private val context: Context) : AppsflyerRepository {
+    override suspend fun getData(): AppsflyerModel {
         return getAppsflyer()
     }
 

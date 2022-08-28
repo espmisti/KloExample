@@ -1,7 +1,7 @@
 package com.klo.example.data
 
 import com.klo.example.domain.model.AppDataModel
-import com.klo.example.domain.model.URLOfferModel
+import com.klo.example.domain.model.FlowModel
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -17,9 +17,9 @@ interface APIService {
     ) : Response<AppDataModel>
 
     @POST(Constants.API.ROUTES.URL_OFFER)
-    suspend fun getUrlOffer(
+    suspend fun getFlow(
         @Body requestBody: RequestBody
-    ) : Response<URLOfferModel>
+    ) : Response<FlowModel>
 
     companion object {
         val retrofit by lazy {

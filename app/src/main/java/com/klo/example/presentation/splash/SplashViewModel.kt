@@ -1,35 +1,30 @@
 package com.klo.example.presentation.splash
 
-import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
 import com.klo.example.data.repository.*
 import com.klo.example.domain.model.*
-import com.klo.example.domain.repository.FacebookRepository
-import com.klo.example.domain.repository.LastURLRepository
 import com.klo.example.domain.usecase.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class SplashViewModel(application: Application) : AndroidViewModel(application) {
 
     val mutableAppInfoLiveData : MutableLiveData<AppDataModel> = MutableLiveData()
-    val mutableGetLastURLLiveData : MutableLiveData<LastURLModel> = MutableLiveData()
-    val mutableSaveLastURLLiveData : MutableLiveData<Boolean> = MutableLiveData()
+    //
+    val mutableGetSharedPrefLiveData : MutableLiveData<SharedPrefModel> = MutableLiveData()
+    //
     val mutableFacebookLiveData : MutableLiveData<FacebookModel> = MutableLiveData()
     val mutableAppsflyerLiveData : MutableLiveData<AppsflyerModel> = MutableLiveData()
     val mutableReferrerLiveData : MutableLiveData<ReferrerModel> = MutableLiveData()
-    val mutableOfferLiveData : MutableLiveData<URLOfferModel> = MutableLiveData()
+    val mutableFlowLiveData : MutableLiveData<FlowModel> = MutableLiveData()
+    val mutableIsAppsInitLiveData : MutableLiveData<Boolean> = MutableLiveData()
 
     fun getAppInfo() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -45,14 +40,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
-    fun getLastURL() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = GetLastURLUseCase(lastURLRepository = LastURLDataRepository(context = getApplication())).execute()
-            withContext(Dispatchers.Main) {
-                mutableGetLastURLLiveData.value = LastURLModel(last_url = result.last_url)
-            }
-        }
-    }
+
     fun getFacebook(intent: Intent, id: String, token: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = GetFacebookUseCase(facebookRepository = FacebookDataRepository(
@@ -66,12 +54,9 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
-    fun getAppsflyer(appsflyer_id: String) {
+    fun getAppsflyer() {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = GetAppsflyerUseCase(appsflyerRepository = AppsflyerDataRepository(
-                context = getApplication(),
-                appsflyer = appsflyer_id
-            )).execute()
+            val result = GetAppsflyerUseCase(appsflyerRepository = AppsflyerDataRepository(context = getApplication())).execute()
             AppsFlyerLib.getInstance().unregisterConversionListener()
             withContext(Dispatchers.Main) {
                 mutableAppsflyerLiveData.value = AppsflyerModel(
@@ -131,20 +116,34 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
-    fun getUrlOffer(jsonObject: JSONObject) {
+    fun getFlow(jsonObject: JSONObject, flowkey: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = GetOfferUseCase(offerRepository = OfferDataRepository(jsonObject = jsonObject)).execute()
+            val result = GetFlowUseCase(flowRepository = FlowDataRepository(
+                jsonObject = jsonObject,
+                flowkey = flowkey
+            )).execute()
             withContext(Dispatchers.Main) {
-                mutableOfferLiveData.value = result?.let { URLOfferModel(url = it.url) }
+                result?.let {
+                    mutableFlowLiveData.value = FlowModel(
+                        url = it.url,
+                        fullscreen = it.fullscreen,
+                        orientation = it.orientation
+                    )
+                }
             }
         }
     }
-    fun saveLastUrl(url: String) {
+    fun getSharedPref() {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = SaveLastURLUseCase(lastURLRepository = LastURLDataRepository(context = getApplication())).execute(url = url)
+            val result = GetSharedPrefUseCase(sharedPrefRepository = SharedPrefDataRepository(context = getApplication())).execute()
             withContext(Dispatchers.Main) {
-                mutableSaveLastURLLiveData.value = result
+                mutableGetSharedPrefLiveData.value = SharedPrefModel(
+                    last_url = result.last_url,
+                    fullscreen = result.fullscreen,
+                    orientation = result.orientation
+                )
             }
         }
     }
+
 }

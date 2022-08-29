@@ -15,13 +15,13 @@ import android.webkit.WebView
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 
-class OrganicWV(private val webview: WebView) {
-    fun open (win: Window, context: Context, activity: Activity) {
-        Utils().setFull(win = win)
-        initWebView(context = context, activity = activity)
+class OrganicWV(private val webview: WebView, private val context: Context, private val activity: Activity) {
+    fun open () {
+        Utils().setFull(win = activity.window)
+        initWebView()
     }
     @SuppressLint("SetJavaScriptEnabled")
-    private fun initWebView(context: Context, activity: Activity){
+    private fun initWebView(){
         webview.settings.javaScriptEnabled = true
         webview.settings.allowFileAccess = true
         webview.settings.loadWithOverviewMode = true

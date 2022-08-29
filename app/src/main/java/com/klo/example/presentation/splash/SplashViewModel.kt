@@ -1,13 +1,17 @@
 package com.klo.example.presentation.splash
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.telephony.TelephonyManager
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.appsflyer.AppsFlyerLib
 import com.klo.example.data.repository.*
 import com.klo.example.domain.model.*
+import com.klo.example.domain.repository.SystemRepository
 import com.klo.example.domain.usecase.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,14 +21,13 @@ import org.json.JSONObject
 class SplashViewModel(application: Application) : AndroidViewModel(application) {
 
     val mutableAppInfoLiveData : MutableLiveData<AppDataModel> = MutableLiveData()
-    //
     val mutableGetSharedPrefLiveData : MutableLiveData<SharedPrefModel> = MutableLiveData()
-    //
     val mutableFacebookLiveData : MutableLiveData<FacebookModel> = MutableLiveData()
     val mutableAppsflyerLiveData : MutableLiveData<AppsflyerModel> = MutableLiveData()
     val mutableReferrerLiveData : MutableLiveData<ReferrerModel> = MutableLiveData()
     val mutableFlowLiveData : MutableLiveData<FlowModel> = MutableLiveData()
-    val mutableIsAppsInitLiveData : MutableLiveData<Boolean> = MutableLiveData()
+    val mutableFinishLiveData : MutableLiveData<Boolean> = MutableLiveData()
+    val mutableSystemLiveData : MutableLiveData<SystemModel> = MutableLiveData()
 
     fun getAppInfo() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -142,6 +145,43 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
                     fullscreen = result.fullscreen,
                     orientation = result.orientation
                 )
+            }
+        }
+    }
+    fun getSystemData() {
+        val tm : TelephonyManager = getApplication<Application>().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = GetSystemInfoUseCase(systemRepository = SystemDataRepository(tm = tm, pkg = getApplication<Application>().packageName)).execute()
+            withContext(Dispatchers.Main) {
+                mutableSystemLiveData.value = SystemModel(
+                    carrier_name = result.carrier_name,
+                    carrier_id = result.carrier_id,
+                    carrier_country = result.carrier_country,
+                    carrier_sim_name = result.carrier_sim_name,
+                    device_manufacturer = result.device_manufacturer,
+                    device_model = result.device_model,
+                    device_locale = result.device_locale,
+                    os_ver = result.os_ver,
+                    time_offset = result.time_offset,
+                    time_zone = result.time_zone,
+                    package_name = result.package_name,
+                    app_ver = result.app_ver,
+                    app_id = result.app_id
+                )
+            }
+        }
+    }
+    fun checkStepApp(value: Int) {
+        when (value) {
+            1->{
+                Log.i("APP_CHECK", "--------------- STEP 1")
+            }
+            2->{
+                Log.i("APP_CHECK", "--------------- STEP 2")
+            }
+            3->{
+                Log.i("APP_CHECK", "--------------- STEP 3")
+                mutableFinishLiveData.value = true
             }
         }
     }

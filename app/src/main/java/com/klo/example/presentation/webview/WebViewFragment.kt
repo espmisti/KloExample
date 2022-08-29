@@ -29,6 +29,7 @@ class WebViewFragment : Fragment() {
     private lateinit var main: NonOrganicWV
     //
     private var type : String? = null
+    private var fullscreen : Int? = null
     //
     private val IC = 1
     private var mFilePathCallback: ValueCallback<Array<Uri>>? = null
@@ -41,42 +42,32 @@ class WebViewFragment : Fragment() {
         wv = view.findViewById(R.id.webview)
         fragmentLayout = view.findViewById(R.id.target_view)
         //
-        white = OrganicWV(webview = wv)
-        main = NonOrganicWV(webView = wv)
+        white = OrganicWV(webview = wv, context = requireContext(), activity = requireActivity())
+        main = NonOrganicWV(webView = wv, context = requireContext(), activity = requireActivity())
         //
         if (Utils().isNetworkAvailable(context = requireContext())) {
             initialObservers()
             //
             type = requireArguments().getString("type_join")
             val url = requireArguments().getString("url")
-            val fullscreen = requireArguments().getInt("fullscreen", 0)
+            fullscreen = requireArguments().getInt("fullscreen", 0)
             val orientation = requireArguments().getInt("orientation", 0)
 
             if(type == "non-organic" && url != null) {
                 main.open(
-                    win = requireActivity().window,
-                    context = requireContext(),
-                    activity = requireActivity(),
                     viewModel = viewModel,
-                    fullscreen = fullscreen,
+                    fullscreen = fullscreen!!,
                     orientation = orientation,
-                    url = url
+                    url = url,
+                    fragmentLayout = fragmentLayout
                 )
                 viewModel.saveSharedPrefs(
                     url = url,
                     fullscreen = fullscreen,
                     orientation = orientation
                 )
-            } else white.open(
-                win = requireActivity().window,
-                context = requireContext(),
-                activity = requireActivity()
-            )
-        } else white.open(
-            win = requireActivity().window,
-            context = requireContext(),
-            activity = requireActivity()
-        )
+            } else white.open()
+        } else white.open()
         return view
     }
 
@@ -89,8 +80,7 @@ class WebViewFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        if(type == "non-ogranic")
-            viewModel.saveSharedPrefs(url = wv.url)
+        if(type == "non-ogranic") viewModel.saveSharedPrefs(url = wv.url)
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode != IC || mFilePathCallback == null) {
@@ -124,10 +114,12 @@ class WebViewFragment : Fragment() {
     }
     override fun onStart() {
         super.onStart()
-        if(!Utils().isNetworkAvailable(context = requireContext()))
-            Utils().setFull(win = requireActivity().window)
-        if(type == "non-organic")
-            Utils().setFull(win = requireActivity().window, "non-organic")
+        when {
+            !Utils().isNetworkAvailable(context = requireContext()) -> Utils().setFull(win = requireActivity().window)
+            type == "non-organic" && fullscreen != 1 -> Utils().setFull(win = requireActivity().window, "non-organic")
+            type == "organic" -> Utils().setFull(win = requireActivity().window)
+        }
+
     }
 
 }

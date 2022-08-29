@@ -1,6 +1,9 @@
 package com.klo.example.data
 
 object Constants {
+    object SYSTEM {
+        const val APP_ID = "1"
+    }
     object API {
         const val URL = "https://espmisti.online/klo/api/"
         const val TOKEN = "sb5wqSM3KWjWhywo5"

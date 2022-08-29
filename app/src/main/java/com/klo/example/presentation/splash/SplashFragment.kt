@@ -11,6 +11,7 @@ import com.appsflyer.AppsFlyerLib
 import com.appsflyer.attribution.AppsFlyerRequestListener
 import com.klo.example.R
 import com.klo.example.domain.model.*
+import com.klo.example.presentation.splash.components.KloJSON
 import com.klo.example.presentation.webview.components.Utils
 import org.json.JSONObject
 
@@ -18,6 +19,11 @@ import org.json.JSONObject
 class SplashFragment : Fragment() {
 
     private val viewModel by viewModels<SplashViewModel>()
+
+    private val jsonObject = JSONObject()
+
+    private var flowKey : String? = null
+    private var stepApp : Int = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_splash, container, false)
@@ -31,16 +37,35 @@ class SplashFragment : Fragment() {
 
         return view
     }
-    //
     private fun initialObservers() {
+        // Получение цифр с сервера
         viewModel.mutableAppInfoLiveData.observe(viewLifecycleOwner, appInfoLiveData())
+        //
         viewModel.mutableFacebookLiveData.observe(viewLifecycleOwner, facebookLiveData())
         viewModel.mutableAppsflyerLiveData.observe(viewLifecycleOwner, appsflyerLiveData())
         viewModel.mutableReferrerLiveData.observe(viewLifecycleOwner, referrerLiveData())
+        // Получение потока с сервера
         viewModel.mutableFlowLiveData.observe(viewLifecycleOwner, flowLiveData())
-        viewModel.mutableIsAppsInitLiveData.observe(viewLifecycleOwner, isAppInit())
+        // Сохранение в SharedPreference данные
         viewModel.mutableGetSharedPrefLiveData.observe(viewLifecycleOwner, getSharedPrefLiveData())
+        // Получение данные устройства
+        viewModel.mutableSystemLiveData.observe(viewLifecycleOwner, getSystemDataLiveData())
+        // Получение этапа работы приложения
+        viewModel.mutableFinishLiveData.observe(viewLifecycleOwner, finishLiveData())
     }
+
+    private fun finishLiveData() = Observer<Boolean> { model->
+        if(model) openWebView()
+    }
+
+    private fun getSystemDataLiveData() = Observer<SystemModel> { model->
+        if (model != null) {
+            KloJSON().getSystem(jsonObject, model)
+            viewModel.getFlow(jsonObject = jsonObject, flowkey = flowKey.toString())
+            Log.i("APP_CHECK", "object: $jsonObject")
+        }
+    }
+
     private fun getSharedPrefLiveData() = Observer<SharedPrefModel> { model->
         if(model.last_url != null)
             openWebView(
@@ -53,92 +78,62 @@ class SplashFragment : Fragment() {
     }
 
     private fun appInfoLiveData() = Observer<AppDataModel> { model->
-        if(model != null) {
-            Log.i("APP_CHECK", "[AppData]: $model")
-            AppsFlyerLib.getInstance().init(model.appsflyer, null, requireContext())
-            AppsFlyerLib.getInstance().start(requireContext(), model.appsflyer, object :
-                AppsFlyerRequestListener {
-                override fun onSuccess() {
-                    Log.i("APP_CHECK", "[Appsflyer] Инициализирован успешно")
-                    viewModel.getFacebook(
-                        intent = requireActivity().intent,
-                        id = model.fb_app_id,
-                        token = model.fb_client_token
-                    )
-                    viewModel.getAppsflyer()
-                    viewModel.getReferrer()
-                }
+        Log.i("APP_CHECK", "[AppData]: $model")
+        AppsFlyerLib.getInstance().init(model.appsflyer, null, requireContext())
+        AppsFlyerLib.getInstance().start(requireContext(), model.appsflyer, object :
+            AppsFlyerRequestListener {
+            override fun onSuccess() {
+                Log.i("APP_CHECK", "- Appsflyer инициализирован успешно -")
+                viewModel.getFacebook(
+                    intent = requireActivity().intent,
+                    id = model.fb_app_id,
+                    token = model.fb_client_token
+                )
+                viewModel.getAppsflyer()
+                viewModel.getReferrer()
+            }
 
-                override fun onError(p0: Int, p1: String) {
-                    Log.i("APP_CHECK", "[Appsflyer] Ошибка инициализации: $p0 $p1")
-                }
-            })
-
-        } else openWebView()
+            override fun onError(p0: Int, p1: String) {
+                Log.i("APP_CHECK", "- Appsflyer ошибка инициализации: $p0 $p1 -")
+            }
+        })
     }
 
     private fun facebookLiveData() = Observer<FacebookModel> { model->
-        if (model != null) {
-            if (model.campaign != null) {
-
-            }
-            Log.i("APP_CHECK", "[Facebook]: $model")
+        if (model.campaign != null) {
+            flowKey = model.campaign!!.substringBefore('_')
+            KloJSON().getFacebook(jsonObject, model)
+            //
+            viewModel.getSystemData()
         } else {
-            // TODO: facebook кампания не пришла
+            stepApp++
+            viewModel.checkStepApp(value = stepApp)
         }
+        Log.i("APP_CHECK", "\n\n[Facebook]: $model")
     }
     private fun appsflyerLiveData() = Observer<AppsflyerModel> { model->
-        if (model != null){
-            val t = "3t_nikita_vanya_nasha_russia"
-            if (t != "None" && t != null) {
-                val jsonObject = JSONObject()
-                with(jsonObject) {
-                    put("redirect_response_data", model.redirect_response_data)
-                    put("adgroup_id", model.adgroup_id)
-                    put("engmnt_source", model.engmnt_source)
-                    put("retargeting_conversion_type", model.retargeting_conversion_type)
-                    put("is_incentivized", model.is_incentivized)
-                    put("orig_cost", model.orig_cost)
-                    put("is_first_launch", model.is_first_launch)
-                    put("af_click_lookback", model.af_click_lookback)
-                    put("af_cpi", model.af_cpi)
-                    put("iscache", model.iscache)
-                    put("click_time", model.click_time)
-                    put("is_branded_link", model.is_branded_link)
-                    put("match_type", model.match_type)
-                    put("adset", model.adset)
-                    put("campaign_id", model.campaign_id)
-                    put("install_time", model.install_time)
-                    put("media_source", model.media_source)
-                    put("af_sub1", model.af_sub1)
-                    put("clickid", model.clickid)
-                    put("af_siteid", model.af_siteid)
-                    put("af_status", model.af_status)
-                    put("cost_cents_USD", model.cost_cents_USD)
-                    put("af_r", model.af_r)
-                    put("af_sub4", model.af_sub4)
-                    put("af_sub3", model.af_sub3)
-                    put("af_sub2", model.af_sub2)
-                    put("adset_id", model.adset_id)
-                    put("http_referrer", model.http_referrer)
-                    put("is_universal_link", model.is_universal_link)
-                    put("is_retargeting", model.is_retargeting)
-                    put("adgroup", model.adgroup)
-                    put("ts", model.ts)
-                }
-                //
-                viewModel.getFlow(
-                    jsonObject = jsonObject,
-                    flowkey = t.substringBefore('_')
-                )
-                Log.i("APP_CHECK", "[Appsflyer]: $model")
-            }
+        if (model.campaign != "None" && model.campaign != "null" && model.campaign != null) {
+            flowKey = model.campaign!!.substringBefore('_')
+            KloJSON().getAppsflyer(jsonObject, model)
+            //
+            viewModel.getSystemData()
+        } else {
+            stepApp++
+            viewModel.checkStepApp(value = stepApp)
         }
+        Log.i("APP_CHECK", "\n\n[Appsflyer]: $model")
     }
     private fun referrerLiveData() = Observer<ReferrerModel> { model->
-        if (model != null) {
-            Log.i("APP_CHECK", "[Referrer]: $model")
+        if (model.installReferrer != null && model.installReferrer != "utm_source=google-play&utm_medium=organic") {
+            flowKey = model.installReferrer!!.substringBefore('_')
+            KloJSON().getRefferer(jsonObject, model)
+            //
+            viewModel.getSystemData()
+        } else {
+            stepApp++
+            viewModel.checkStepApp(value = stepApp)
         }
+        Log.i("APP_CHECK", "\n\n[Referrer]: $model")
     }
     private fun flowLiveData() = Observer<FlowModel> { model->
         if (model != null) {
@@ -150,13 +145,6 @@ class SplashFragment : Fragment() {
                 fullscreen = model.fullscreen,
                 orientation = model.orientation
             )
-        }
-    }
-    private fun isAppInit() = Observer<Boolean> { model->
-        if (model) {
-
-        } else {
-            openWebView()
         }
     }
     //

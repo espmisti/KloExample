@@ -8,6 +8,7 @@ import com.klo.example.data.repository.SharedPrefDataRepository
 import com.klo.example.domain.model.SharedPrefModel
 import com.klo.example.domain.usecase.GetSharedPrefUseCase
 import com.klo.example.domain.usecase.SaveSharedPrefUseCase
+import com.klo.example.obfuscation.Controller
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,7 +26,7 @@ class WebViewViewModel(application: Application) : AndroidViewModel(application)
                 orientation = orientation
             )
             withContext(Dispatchers.Main) {
-                mutableSaveSharedPrefLiveData.value = result
+                if(Controller().obf()) mutableSaveSharedPrefLiveData.value = result
             }
         }
     }

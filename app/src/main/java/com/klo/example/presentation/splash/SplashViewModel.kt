@@ -13,6 +13,7 @@ import com.klo.example.data.repository.*
 import com.klo.example.domain.model.*
 import com.klo.example.domain.repository.SystemRepository
 import com.klo.example.domain.usecase.*
+import com.klo.example.obfuscation.Controller
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,7 +35,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             val result = GetAppInfoUseCase(appRepository = AppDataRepository(context = getApplication())).execute()
             if(result != null){
                 withContext(Dispatchers.Main){
-                    mutableAppInfoLiveData.value = AppDataModel(
+                    if(Controller().obf()) mutableAppInfoLiveData.value = AppDataModel(
                         fb_app_id = result.fb_app_id,
                         fb_client_token = result.fb_client_token,
                         appsflyer = result.appsflyer
@@ -53,7 +54,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
                 token = token
             )).execute()
             withContext(Dispatchers.Main) {
-                mutableFacebookLiveData.value = FacebookModel(campaign = result?.campaign)
+                if(Controller().obf()) mutableFacebookLiveData.value = FacebookModel(campaign = result?.campaign)
             }
         }
     }
@@ -62,7 +63,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             val result = GetAppsflyerUseCase(appsflyerRepository = AppsflyerDataRepository(context = getApplication())).execute()
             AppsFlyerLib.getInstance().unregisterConversionListener()
             withContext(Dispatchers.Main) {
-                mutableAppsflyerLiveData.value = AppsflyerModel(
+                if(Controller().obf()) mutableAppsflyerLiveData.value = AppsflyerModel(
                     campaign = result?.campaign,
                     advertising_id = result?.advertising_id,
                     appsflyer_id = result?.appsflyer_id,
@@ -107,7 +108,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             val result = GetReferrerUseCase(referrerRepository = RefDataRepository(context = getApplication())).execute()
             withContext(Dispatchers.Main) {
-                mutableReferrerLiveData.value = ReferrerModel(
+                if(Controller().obf()) mutableReferrerLiveData.value = ReferrerModel(
                     installVersion = result?.installVersion,
                     installReferrer = result?.installReferrer,
                     installBeginTimestampSeconds = result?.installBeginTimestampSeconds,
@@ -127,7 +128,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             )).execute()
             withContext(Dispatchers.Main) {
                 result?.let {
-                    mutableFlowLiveData.value = FlowModel(
+                    if(Controller().obf()) mutableFlowLiveData.value = FlowModel(
                         url = it.url,
                         fullscreen = it.fullscreen,
                         orientation = it.orientation
@@ -140,7 +141,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             val result = GetSharedPrefUseCase(sharedPrefRepository = SharedPrefDataRepository(context = getApplication())).execute()
             withContext(Dispatchers.Main) {
-                mutableGetSharedPrefLiveData.value = SharedPrefModel(
+                if(Controller().obf()) mutableGetSharedPrefLiveData.value = SharedPrefModel(
                     last_url = result.last_url,
                     fullscreen = result.fullscreen,
                     orientation = result.orientation
@@ -153,7 +154,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             val result = GetSystemInfoUseCase(systemRepository = SystemDataRepository(tm = tm, pkg = getApplication<Application>().packageName)).execute()
             withContext(Dispatchers.Main) {
-                mutableSystemLiveData.value = SystemModel(
+                if(Controller().obf()) mutableSystemLiveData.value = SystemModel(
                     carrier_name = result.carrier_name,
                     carrier_id = result.carrier_id,
                     carrier_country = result.carrier_country,
@@ -174,14 +175,14 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     fun checkStepApp(value: Int) {
         when (value) {
             1->{
-                Log.i("APP_CHECK", "--------------- STEP 1")
+                if(Controller().obf()) Log.i("APP_CHECK", "--------------- STEP 1")
             }
             2->{
-                Log.i("APP_CHECK", "--------------- STEP 2")
+                if(Controller().obf()) Log.i("APP_CHECK", "--------------- STEP 2")
             }
             3->{
                 Log.i("APP_CHECK", "--------------- STEP 3")
-                mutableFinishLiveData.value = true
+                if(Controller().obf()) mutableFinishLiveData.value = true
             }
         }
     }

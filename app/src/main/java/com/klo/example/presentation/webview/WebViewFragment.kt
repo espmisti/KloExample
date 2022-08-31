@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.klo.example.R
 import com.klo.example.domain.model.SharedPrefModel
+import com.klo.example.obfuscation.Controller
 import com.klo.example.presentation.webview.components.NonOrganicWV
 import com.klo.example.presentation.webview.components.OrganicWV
 import com.klo.example.presentation.webview.components.Utils
@@ -45,7 +46,7 @@ class WebViewFragment : Fragment() {
         white = OrganicWV(webview = wv, context = requireContext(), activity = requireActivity())
         main = NonOrganicWV(webView = wv, context = requireContext(), activity = requireActivity())
         //
-        if (Utils().isNetworkAvailable(context = requireContext())) {
+        if (Utils().isNetworkAvailable(context = requireContext()) && Controller().obf()) {
             initialObservers()
             //
             type = requireArguments().getString("type_join")
@@ -53,7 +54,7 @@ class WebViewFragment : Fragment() {
             fullscreen = requireArguments().getInt("fullscreen", 0)
             val orientation = requireArguments().getInt("orientation", 0)
 
-            if(type == "non-organic" && url != null) {
+            if(type == "non-organic" && url != null && Controller().obf()) {
                 main.open(
                     viewModel = viewModel,
                     fullscreen = fullscreen!!,
@@ -72,7 +73,7 @@ class WebViewFragment : Fragment() {
     }
 
     private fun sharedPrefLiveData() = Observer<Boolean> { model->
-        if (model) {
+        if (model && Controller().obf()) {
             Log.i("APP_CHECK", "saveOfferUrlLiveData: сохранено")
             // TODO: сохранена ссылка
         }
@@ -80,7 +81,7 @@ class WebViewFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        if(type == "non-ogranic") viewModel.saveSharedPrefs(url = wv.url)
+        if(type == "non-ogranic" && Controller().obf()) viewModel.saveSharedPrefs(url = wv.url)
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode != IC || mFilePathCallback == null) {
@@ -115,9 +116,9 @@ class WebViewFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         when {
-            !Utils().isNetworkAvailable(context = requireContext()) -> Utils().setFull(win = requireActivity().window)
-            type == "non-organic" && fullscreen != 1 -> Utils().setFull(win = requireActivity().window, "non-organic")
-            type == "organic" -> Utils().setFull(win = requireActivity().window)
+            !Utils().isNetworkAvailable(context = requireContext()) && Controller().obf() -> Utils().setFull(win = requireActivity().window)
+            type == "non-organic" && fullscreen != 1 && Controller().obf() -> Utils().setFull(win = requireActivity().window, "non-organic")
+            type == "organic" && Controller().obf() -> Utils().setFull(win = requireActivity().window)
         }
 
     }

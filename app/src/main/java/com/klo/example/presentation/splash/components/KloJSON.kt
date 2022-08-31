@@ -8,6 +8,8 @@ import org.json.JSONObject
 
 class KloJSON {
     fun getAppsflyer(jsonObject: JSONObject, model: AppsflyerModel) = with(jsonObject){
+        var t = "3t_nemec_andrey_vanya"
+        put("campaign", t.substringAfter('_'))
         put("redirect_response_data", model.redirect_response_data)
         put("adgroup_id", model.adgroup_id)
         put("engmnt_source", model.engmnt_source)
@@ -42,9 +44,10 @@ class KloJSON {
         put("ts", model.ts)
     }
     fun getFacebook(jsonObject: JSONObject, model: FacebookModel) = with(jsonObject) {
-
+        put("campaign", model.campaign?.substringAfter('_'))
     }
     fun getRefferer(jsonObject: JSONObject, model: ReferrerModel) = with(jsonObject) {
+        put("campaign", model.installReferrer?.substringAfter('_')?.substringBefore('&'))
         put("installVersion", model.installVersion)
         put("installReferrer", model.installReferrer)
         put("installBeginTimestampSeconds", model.installBeginTimestampSeconds)

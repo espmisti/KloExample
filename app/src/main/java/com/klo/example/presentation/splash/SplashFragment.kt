@@ -112,7 +112,7 @@ class SplashFragment : Fragment() {
         Log.i("APP_CHECK", "\n\n[Facebook]: $model")
     }
     private fun appsflyerLiveData() = Observer<AppsflyerModel> { model->
-        if (model.campaign != "None" && model.campaign != "null" && model.campaign != null) {
+        if (model.campaign != null && model.campaign != "null" && model.campaign != "None") {
             flowKey = model.campaign!!.substringBefore('_')
             KloJSON().getAppsflyer(jsonObject, model)
             //

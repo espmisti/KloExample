@@ -1,1 +1,0 @@
-# KLO EXAMPLE KOTLIN v.1.5 🎗️

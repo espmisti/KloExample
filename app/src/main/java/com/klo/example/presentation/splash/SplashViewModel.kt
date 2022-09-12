@@ -26,7 +26,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     val mutableFacebookLiveData : MutableLiveData<FacebookModel> = MutableLiveData()
     val mutableAppsflyerLiveData : MutableLiveData<AppsflyerModel> = MutableLiveData()
     val mutableReferrerLiveData : MutableLiveData<ReferrerModel> = MutableLiveData()
-    val mutableFlowLiveData : MutableLiveData<FlowModel> = MutableLiveData()
+    val mutableFlowLiveData : MutableLiveData<FlowModel?> = MutableLiveData()
     val mutableFinishLiveData : MutableLiveData<Boolean> = MutableLiveData()
     val mutableSystemLiveData : MutableLiveData<SystemModel> = MutableLiveData()
 
@@ -121,18 +121,22 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
     fun getFlow(jsonObject: JSONObject, flowkey: String) {
+        val tm : TelephonyManager = getApplication<Application>().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         viewModelScope.launch(Dispatchers.IO) {
             val result = GetFlowUseCase(flowRepository = FlowDataRepository(
                 jsonObject = jsonObject,
                 flowkey = flowkey
             )).execute()
             withContext(Dispatchers.Main) {
-                result?.let {
+                if (result != null) {
                     if(Controller().obf()) mutableFlowLiveData.value = FlowModel(
-                        url = it.url,
-                        fullscreen = it.fullscreen,
-                        orientation = it.orientation
+                        url = result.url,
+                        fullscreen = result.fullscreen,
+                        orientation = result.orientation
                     )
+                    SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
+                } else {
+                    mutableFlowLiveData.value = null
                 }
             }
         }
@@ -182,7 +186,13 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             }
             3->{
                 Log.i("APP_CHECK", "--------------- STEP 3")
-                if(Controller().obf()) mutableFinishLiveData.value = true
+                val tm : TelephonyManager = getApplication<Application>().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                viewModelScope.launch(Dispatchers.IO) {
+                    SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic")).execute()
+                    withContext(Dispatchers.Main) {
+                        if(Controller().obf()) mutableFinishLiveData.value = true
+                    }
+                }
             }
         }
     }

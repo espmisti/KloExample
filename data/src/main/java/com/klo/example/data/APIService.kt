@@ -3,6 +3,7 @@ package com.klo.example.data
 import com.klo.example.domain.model.AppDataModel
 import com.klo.example.domain.model.FlowModel
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,6 +21,12 @@ interface APIService {
     suspend fun getFlow(
         @Body requestBody: RequestBody
     ) : Response<FlowModel>
+
+    @FormUrlEncoded
+    @POST(Constants.API.ROUTES.INSTALL_LOG)
+    suspend fun sendInstallLog(
+        @FieldMap params: HashMap<String?, String?>
+    ) : Response<ResponseBody>
 
     companion object {
         val retrofit by lazy {

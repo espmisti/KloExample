@@ -140,7 +140,7 @@ class SplashFragment : Fragment() {
         }
         Log.i("APP_CHECK", "\n\n[Referrer]: $model")
     }
-    private fun flowLiveData() = Observer<FlowModel> { model->
+    private fun flowLiveData() = Observer<FlowModel?> { model->
         if (model != null && Controller().obf()) {
             Log.i("APP_CHECK", "[URL Offer]: $model")
             viewModelStore.clear()
@@ -150,6 +150,9 @@ class SplashFragment : Fragment() {
                 fullscreen = model.fullscreen,
                 orientation = model.orientation
             )
+        } else {
+            Log.i("APP_CHECK", "[FLOW LIVE DATA]: Flowkey не найден")
+            openWebView()
         }
     }
     //

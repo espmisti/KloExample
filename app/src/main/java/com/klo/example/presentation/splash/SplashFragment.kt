@@ -11,6 +11,7 @@ import com.appsflyer.AppsFlyerLib
 import com.appsflyer.attribution.AppsFlyerRequestListener
 import com.klo.example.R
 import com.klo.example.domain.model.*
+import com.klo.example.log.LOG
 import com.klo.example.obfuscation.Controller
 import com.klo.example.presentation.splash.components.KloJSON
 import com.klo.example.presentation.webview.components.Utils
@@ -29,12 +30,15 @@ class SplashFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_splash, container, false)
 
+        //val file = LOG(context = requireContext()).createFile()
+        //LOG(context = requireContext()).getFile(file = file)
+
         if(Controller().obf()) Utils().setColorScreen(win = requireActivity().window, context = requireContext())
 
         if(Utils().isNetworkAvailable(context = requireContext()) && Controller().obf()) {
             initialObservers()
             viewModel.getSharedPref()
-        } else openWebView()
+        } else viewModel.openWebView()
 
         return view
     }
@@ -53,10 +57,13 @@ class SplashFragment : Fragment() {
         viewModel.mutableSystemLiveData.observe(viewLifecycleOwner, getSystemDataLiveData())
         // Получение этапа работы приложения
         viewModel.mutableFinishLiveData.observe(viewLifecycleOwner, finishLiveData())
+        // Получение ссылки на органику
+        viewModel.mutableWebViewLiveData.observe(viewLifecycleOwner, organicURL())
     }
 
+
     private fun finishLiveData() = Observer<Boolean> { model->
-        if(model && Controller().obf()) openWebView()
+        if(model && Controller().obf()) viewModel.openWebView()
     }
 
     private fun getSystemDataLiveData() = Observer<SystemModel> { model->
@@ -69,8 +76,8 @@ class SplashFragment : Fragment() {
 
     private fun getSharedPrefLiveData() = Observer<SharedPrefModel> { model->
         if(model.last_url != null && Controller().obf())
-            openWebView(
-                type = "non-organic",
+            viewModel.openWebView(
+                type = 1,
                 url = model.last_url!!,
                 fullscreen = model.fullscreen!!,
                 orientation = model.orientation!!
@@ -98,6 +105,7 @@ class SplashFragment : Fragment() {
 
             override fun onError(p0: Int, p1: String) {
                 Log.i("APP_CHECK", "- Appsflyer ошибка инициализации: $p0 $p1 -")
+                viewModel.openWebView()
             }
         })
     }
@@ -144,26 +152,26 @@ class SplashFragment : Fragment() {
         if (model != null && Controller().obf()) {
             Log.i("APP_CHECK", "[URL Offer]: $model")
             viewModelStore.clear()
-            openWebView(
-                type = "non-organic",
+            viewModel.openWebView(
+                type = 1,
                 url = model.url,
                 fullscreen = model.fullscreen,
                 orientation = model.orientation
             )
         } else {
             Log.i("APP_CHECK", "[FLOW LIVE DATA]: Flowkey не найден")
-            openWebView()
+            viewModel.openWebView()
         }
     }
-    //
-    private fun openWebView(type: String = "organic", url: String = "", fullscreen: Int = 0, orientation: Int = 0) {
+    private fun organicURL() = Observer<HashMap<String, String>> { model->
         val bundle = Bundle()
         with(bundle) {
-            bundle.putString("url", url)
-            bundle.putString("type_join", type)
-            bundle.putInt("fullscreen", fullscreen)
-            bundle.putInt("orientation", orientation)
+            bundle.putString("url", model["url"])
+            bundle.putString("type_join", model["type_join"])
+            bundle.putInt("fullscreen", model["fullscreen"]!!.toInt())
+            bundle.putInt("orientation", model["orientation"]!!.toInt())
         }
         findNavController().navigate(R.id.webViewFragment, bundle)
     }
+
 }

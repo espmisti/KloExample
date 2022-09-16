@@ -11,6 +11,7 @@ object Constants {
             const val APP_INFO = "getAppInfo/"
             const val URL_OFFER = "getFlow/"
             const val INSTALL_LOG = "sendInstallLog/"
+            const val ORGANIC = "getOrganic/"
         }
     }
 }

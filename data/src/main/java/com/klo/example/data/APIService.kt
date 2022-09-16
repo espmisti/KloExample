@@ -2,6 +2,7 @@ package com.klo.example.data
 
 import com.klo.example.domain.model.AppDataModel
 import com.klo.example.domain.model.FlowModel
+import com.klo.example.domain.model.OrganicModel
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -27,6 +28,13 @@ interface APIService {
     suspend fun sendInstallLog(
         @FieldMap params: HashMap<String?, String?>
     ) : Response<ResponseBody>
+
+    @GET(Constants.API.ROUTES.ORGANIC)
+    suspend fun getOrganic(
+        @Query("token") token : String = Constants.API.TOKEN,
+        @Query("package") pkg : String,
+        @Query("geo") geo : String
+    ) : Response<OrganicModel>
 
     companion object {
         val retrofit by lazy {

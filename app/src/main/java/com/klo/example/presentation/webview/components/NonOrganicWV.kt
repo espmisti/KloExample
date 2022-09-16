@@ -29,15 +29,15 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
     private var mCustomView: View? = null
     private lateinit var mCustomViewCallback : WebChromeClient.CustomViewCallback
 
-    fun open (viewModel: WebViewViewModel, fullscreen: Int, orientation: Int, url: String, fragmentLayout: FrameLayout){
-        initWebView(url = url, viewModel = viewModel, fullscreen = fullscreen, fragmentLayout = fragmentLayout)
+    fun open (viewModel: WebViewViewModel, fullscreen: Int, orientation: Int, url: String, fragmentLayout: FrameLayout, type: String){
+        initWebView(url = url, viewModel = viewModel, fullscreen = fullscreen, fragmentLayout = fragmentLayout, type = type)
         //
         if(fullscreen == 1) Utils().setFull(win = activity.window, "non-organic")
         if(orientation == 1) activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun initWebView (url: String, viewModel: WebViewViewModel, fullscreen: Int, fragmentLayout: FrameLayout) {
+    private fun initWebView (url: String, viewModel: WebViewViewModel, fullscreen: Int, fragmentLayout: FrameLayout, type: String) {
         val ws: WebSettings = webView.settings
         //
         ws.javaScriptCanOpenWindowsAutomatically = true
@@ -59,7 +59,7 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
         ws.setSupportZoom(false)
         //
         webView.webChromeClient = if(fullscreen == 2) webChromeFullScreen(fragmentLayout = fragmentLayout) else webChromeClient()
-        webView.webViewClient = webViewClient(viewModel = viewModel)
+        webView.webViewClient = webViewClient(viewModel = viewModel, type = type)
         webView.loadUrl(url)
         webView.setOnKeyListener(object : View.OnKeyListener {
             override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
@@ -71,7 +71,7 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
         })
 
     }
-    private fun webViewClient(viewModel: WebViewViewModel) = object : WebViewClient() {
+    private fun webViewClient(viewModel: WebViewViewModel, type: String) = object : WebViewClient() {
         @Deprecated("Deprecated in Java")
         override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
             return if (url.startsWith("http://") || url.startsWith("https://")) false else try {
@@ -88,7 +88,9 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
             view.evaluateJavascript("(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();") { html: String ->
                 if (html == "\"\\u003Chtml>\\u003Chead>\\u003C/head>\\u003Cbody>\\u003C/body>\\u003C/html>\"")
                     white.open()
-                else viewModel.saveSharedPrefs(url = url)
+                else {
+                    if(type == "non-organic") viewModel.saveSharedPrefs(url = url)
+                }
             }
         }
     }

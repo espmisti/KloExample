@@ -54,19 +54,22 @@ class WebViewFragment : Fragment() {
             fullscreen = requireArguments().getInt("fullscreen", 0)
             val orientation = requireArguments().getInt("orientation", 0)
 
-            if(type == "non-organic" && url != null && Controller().obf()) {
+            if((type == "non-organic" || type == "organic_url") && url != null && Controller().obf()) {
                 main.open(
+                    type = type!!,
                     viewModel = viewModel,
                     fullscreen = fullscreen!!,
                     orientation = orientation,
                     url = url,
                     fragmentLayout = fragmentLayout
                 )
-                viewModel.saveSharedPrefs(
-                    url = url,
-                    fullscreen = fullscreen,
-                    orientation = orientation
-                )
+                if(type != "organic_url"){
+                    viewModel.saveSharedPrefs(
+                        url = url,
+                        fullscreen = fullscreen,
+                        orientation = orientation
+                    )
+                }
             } else white.open()
         } else white.open()
         return view
@@ -81,7 +84,7 @@ class WebViewFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        if(type == "non-ogranic" && Controller().obf()) viewModel.saveSharedPrefs(url = wv.url)
+        if(type == "non-organic" && Controller().obf()) viewModel.saveSharedPrefs(url = wv.url)
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode != IC || mFilePathCallback == null) {

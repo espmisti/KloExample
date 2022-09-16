@@ -6,11 +6,13 @@ import android.content.Intent
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.appsflyer.AppsFlyerLib
 import com.klo.example.data.repository.*
 import com.klo.example.domain.model.*
+import com.klo.example.domain.repository.OrganicRepository
 import com.klo.example.domain.repository.SystemRepository
 import com.klo.example.domain.usecase.*
 import com.klo.example.obfuscation.Controller
@@ -29,6 +31,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     val mutableFlowLiveData : MutableLiveData<FlowModel?> = MutableLiveData()
     val mutableFinishLiveData : MutableLiveData<Boolean> = MutableLiveData()
     val mutableSystemLiveData : MutableLiveData<SystemModel> = MutableLiveData()
+    val mutableWebViewLiveData : MutableLiveData<HashMap<String, String>> = MutableLiveData()
 
     fun getAppInfo() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -137,6 +140,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
                     SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
                 } else {
                     mutableFlowLiveData.value = null
+                    SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic")).execute()
                 }
             }
         }
@@ -194,6 +198,38 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
                     }
                 }
             }
+        }
+    }
+    fun openWebView(type: Int = 0, url: String = "", fullscreen: Int = 0, orientation: Int = 0) {
+        val map = hashMapOf<String, String>()
+        if(type == 0) {
+            // органика
+            val tm : TelephonyManager = getApplication<Application>().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            viewModelScope.launch(Dispatchers.IO) {
+                val result = GetOrganicUseCase(organicRepository = OrganicDataRepository(pkg = getApplication<Application>().packageName, tm = tm)).execute()
+                withContext(Dispatchers.Main){
+                    if(result?.url != null) {
+                        map["type_join"] = "organic_url"
+                        map["url"] = result.url!!
+                        map["fullscreen"] = fullscreen.toString()
+                        map["orientation"] = orientation.toString()
+                        mutableWebViewLiveData.value = map
+                    } else {
+                        map["type_join"] = "organic"
+                        map["url"] = ""
+                        map["fullscreen"] = fullscreen.toString()
+                        map["orientation"] = orientation.toString()
+                        mutableWebViewLiveData.value = map
+                    }
+                }
+            }
+        } else {
+            // non organic
+            map["type_join"] = "non-organic"
+            map["url"] = url
+            map["fullscreen"] = fullscreen.toString()
+            map["orientation"] = orientation.toString()
+            mutableWebViewLiveData.value = map
         }
     }
 

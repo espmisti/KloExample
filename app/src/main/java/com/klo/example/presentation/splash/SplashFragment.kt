@@ -29,17 +29,9 @@ class SplashFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_splash, container, false)
-
-        //val file = LOG(context = requireContext()).createFile()
-        //LOG(context = requireContext()).getFile(file = file)
-
         if(Controller().obf()) Utils().setColorScreen(win = requireActivity().window, context = requireContext())
-
-        if(Utils().isNetworkAvailable(context = requireContext()) && Controller().obf()) {
-            initialObservers()
-            viewModel.getSharedPref()
-        } else viewModel.openWebView()
-
+        if(Controller().obf()) initialObservers()
+        if(Controller().obf()) viewModel.internetConnection()
         return view
     }
     private fun initialObservers() {
@@ -59,13 +51,16 @@ class SplashFragment : Fragment() {
         viewModel.mutableFinishLiveData.observe(viewLifecycleOwner, finishLiveData())
         // Получение ссылки на органику
         viewModel.mutableWebViewLiveData.observe(viewLifecycleOwner, organicURL())
+        // Проверка интернета
+        viewModel.mutableInternetLiveData.observe(viewLifecycleOwner, internetLiveData())
     }
-
-
+    private fun internetLiveData() = Observer<Boolean> {
+        if(it) viewModel.getSharedPref()
+        else viewModel.openWebView(type = 2)
+    }
     private fun finishLiveData() = Observer<Boolean> { model->
         if(model && Controller().obf()) viewModel.openWebView()
     }
-
     private fun getSystemDataLiveData() = Observer<SystemModel> { model->
         if (model != null && Controller().obf()) {
             KloJSON().getSystem(jsonObject, model)
@@ -73,7 +68,6 @@ class SplashFragment : Fragment() {
             Log.i("APP_CHECK", "object: $jsonObject")
         }
     }
-
     private fun getSharedPrefLiveData() = Observer<SharedPrefModel> { model->
         if(model.last_url != null && Controller().obf())
             viewModel.openWebView(
@@ -84,7 +78,6 @@ class SplashFragment : Fragment() {
             )
         else viewModel.getAppInfo()
     }
-
     private fun appInfoLiveData() = Observer<AppDataModel> { model->
         Log.i("APP_CHECK", "[AppData]: $model")
         AppsFlyerLib.getInstance().init(model.appsflyer, null, requireContext())
@@ -109,7 +102,6 @@ class SplashFragment : Fragment() {
             }
         })
     }
-
     private fun facebookLiveData() = Observer<FacebookModel> { model->
         if (model.campaign != null && Controller().obf()) {
             flowKey = model.campaign!!.substringBefore('_')
@@ -173,5 +165,4 @@ class SplashFragment : Fragment() {
         }
         findNavController().navigate(R.id.webViewFragment, bundle)
     }
-
 }

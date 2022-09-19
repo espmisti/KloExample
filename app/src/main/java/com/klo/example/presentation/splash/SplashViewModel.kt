@@ -16,6 +16,7 @@ import com.klo.example.domain.repository.OrganicRepository
 import com.klo.example.domain.repository.SystemRepository
 import com.klo.example.domain.usecase.*
 import com.klo.example.obfuscation.Controller
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +33,8 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     val mutableFinishLiveData : MutableLiveData<Boolean> = MutableLiveData()
     val mutableSystemLiveData : MutableLiveData<SystemModel> = MutableLiveData()
     val mutableWebViewLiveData : MutableLiveData<HashMap<String, String>> = MutableLiveData()
+    // System Setting
+    val mutableInternetLiveData : MutableLiveData<Boolean> = MutableLiveData()
 
     fun getAppInfo() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -146,7 +149,10 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
     fun getSharedPref() {
-        viewModelScope.launch(Dispatchers.IO) {
+        val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
+            throwable.printStackTrace()
+        }
+        viewModelScope.launch(Dispatchers.IO+coroutineExceptionHandler) {
             val result = GetSharedPrefUseCase(sharedPrefRepository = SharedPrefDataRepository(context = getApplication())).execute()
             withContext(Dispatchers.Main) {
                 if(Controller().obf()) mutableGetSharedPrefLiveData.value = SharedPrefModel(
@@ -206,15 +212,25 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             // органика
             val tm : TelephonyManager = getApplication<Application>().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             viewModelScope.launch(Dispatchers.IO) {
-                val result = GetOrganicUseCase(organicRepository = OrganicDataRepository(pkg = getApplication<Application>().packageName, tm = tm)).execute()
-                withContext(Dispatchers.Main){
-                    if(result?.url != null) {
-                        map["type_join"] = "organic_url"
-                        map["url"] = result.url!!
-                        map["fullscreen"] = fullscreen.toString()
-                        map["orientation"] = orientation.toString()
-                        mutableWebViewLiveData.value = map
-                    } else {
+                if(type == 2) {
+                    val result = GetOrganicUseCase(organicRepository = OrganicDataRepository(pkg = getApplication<Application>().packageName, tm = tm)).execute()
+                    withContext(Dispatchers.Main){
+                        if(result?.url != null) {
+                            map["type_join"] = "organic_url"
+                            map["url"] = result.url!!
+                            map["fullscreen"] = fullscreen.toString()
+                            map["orientation"] = orientation.toString()
+                            mutableWebViewLiveData.value = map
+                        } else {
+                            map["type_join"] = "organic"
+                            map["url"] = ""
+                            map["fullscreen"] = fullscreen.toString()
+                            map["orientation"] = orientation.toString()
+                            mutableWebViewLiveData.value = map
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
                         map["type_join"] = "organic"
                         map["url"] = ""
                         map["fullscreen"] = fullscreen.toString()
@@ -230,6 +246,15 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             map["fullscreen"] = fullscreen.toString()
             map["orientation"] = orientation.toString()
             mutableWebViewLiveData.value = map
+        }
+    }
+    fun internetConnection() {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.i("APP_CHECK", "internetConnection: ${GetInternetUseCase(internetRepository = InternetDataRepository(context = getApplication())).execute()}")
+            val result = GetInternetUseCase(internetRepository = InternetDataRepository(context = getApplication())).execute()
+            withContext(Dispatchers.Main){
+                mutableInternetLiveData.value = result
+            }
         }
     }
 

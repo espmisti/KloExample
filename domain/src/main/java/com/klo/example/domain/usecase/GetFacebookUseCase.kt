@@ -6,10 +6,7 @@ import com.klo.example.domain.repository.FacebookRepository
 class GetFacebookUseCase (private val facebookRepository: FacebookRepository) {
     suspend fun execute() : FacebookModel? {
         val data = facebookRepository.getCampaign()
-        if (data != null) {
-           return FacebookModel(
-               campaign = data.campaign
-           )
-        } else return null
+        return if (data != null) FacebookModel(campaign = data.campaign)
+        else null
     }
 }

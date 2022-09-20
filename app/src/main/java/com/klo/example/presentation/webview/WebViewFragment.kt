@@ -48,6 +48,7 @@ class WebViewFragment : Fragment() {
         //
         if (Utils().isNetworkAvailable(context = requireContext()) && Controller().obf()) {
             initialObservers()
+
             //
             type = requireArguments().getString("type_join")
             val url = requireArguments().getString("url")

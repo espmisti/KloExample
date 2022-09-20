@@ -6,17 +6,13 @@ import android.content.Intent
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.appsflyer.AppsFlyerLib
 import com.klo.example.data.repository.*
 import com.klo.example.domain.model.*
-import com.klo.example.domain.repository.OrganicRepository
-import com.klo.example.domain.repository.SystemRepository
 import com.klo.example.domain.usecase.*
 import com.klo.example.obfuscation.Controller
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,11 +26,12 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     val mutableAppsflyerLiveData : MutableLiveData<AppsflyerModel> = MutableLiveData()
     val mutableReferrerLiveData : MutableLiveData<ReferrerModel> = MutableLiveData()
     val mutableFlowLiveData : MutableLiveData<FlowModel?> = MutableLiveData()
-    val mutableFinishLiveData : MutableLiveData<Boolean> = MutableLiveData()
     val mutableSystemLiveData : MutableLiveData<SystemModel> = MutableLiveData()
     val mutableWebViewLiveData : MutableLiveData<HashMap<String, String>> = MutableLiveData()
     // System Setting
     val mutableInternetLiveData : MutableLiveData<Boolean> = MutableLiveData()
+    // Initial Facebook
+    val mutableInitFacebookLiveData : MutableLiveData<Boolean> = MutableLiveData()
 
     fun getAppInfo() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -50,15 +47,9 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
-
-    fun getFacebook(intent: Intent, id: String, token: String) {
+    fun getFacebook(intent: Intent) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = GetFacebookUseCase(facebookRepository = FacebookDataRepository(
-                context = getApplication(),
-                intent = intent,
-                id = id,
-                token = token
-            )).execute()
+            val result = GetFacebookUseCase(facebookRepository = FacebookDataRepository(context = getApplication(), intent = intent)).execute()
             withContext(Dispatchers.Main) {
                 if(Controller().obf()) mutableFacebookLiveData.value = FacebookModel(campaign = result?.campaign)
             }
@@ -73,7 +64,6 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
                     campaign = result?.campaign,
                     advertising_id = result?.advertising_id,
                     appsflyer_id = result?.appsflyer_id,
-
                     adgroup = result?.adgroup,
                     adgroup_id = result?.adgroup_id,
                     adset = result?.adset,
@@ -135,24 +125,21 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             )).execute()
             withContext(Dispatchers.Main) {
                 if (result != null) {
+                    SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
                     if(Controller().obf()) mutableFlowLiveData.value = FlowModel(
                         url = result.url,
                         fullscreen = result.fullscreen,
                         orientation = result.orientation
                     )
-                    SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
                 } else {
-                    mutableFlowLiveData.value = null
                     SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic")).execute()
+                    mutableFlowLiveData.value = null
                 }
             }
         }
     }
     fun getSharedPref() {
-        val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
-            throwable.printStackTrace()
-        }
-        viewModelScope.launch(Dispatchers.IO+coroutineExceptionHandler) {
+        viewModelScope.launch(Dispatchers.IO) {
             val result = GetSharedPrefUseCase(sharedPrefRepository = SharedPrefDataRepository(context = getApplication())).execute()
             withContext(Dispatchers.Main) {
                 if(Controller().obf()) mutableGetSharedPrefLiveData.value = SharedPrefModel(
@@ -186,26 +173,6 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
-    fun checkStepApp(value: Int) {
-        when (value) {
-            1->{
-                if(Controller().obf()) Log.i("APP_CHECK", "--------------- STEP 1")
-            }
-            2->{
-                if(Controller().obf()) Log.i("APP_CHECK", "--------------- STEP 2")
-            }
-            3->{
-                Log.i("APP_CHECK", "--------------- STEP 3")
-                val tm : TelephonyManager = getApplication<Application>().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-                viewModelScope.launch(Dispatchers.IO) {
-                    SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic")).execute()
-                    withContext(Dispatchers.Main) {
-                        if(Controller().obf()) mutableFinishLiveData.value = true
-                    }
-                }
-            }
-        }
-    }
     fun openWebView(type: Int = 0, url: String = "", fullscreen: Int = 0, orientation: Int = 0) {
         val map = hashMapOf<String, String>()
         if(type == 0) {
@@ -222,6 +189,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
                             map["orientation"] = orientation.toString()
                             mutableWebViewLiveData.value = map
                         } else {
+                            SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic")).execute()
                             map["type_join"] = "organic"
                             map["url"] = ""
                             map["fullscreen"] = fullscreen.toString()
@@ -231,6 +199,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
                     }
                 } else {
                     withContext(Dispatchers.Main) {
+                        SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic")).execute()
                         map["type_join"] = "organic"
                         map["url"] = ""
                         map["fullscreen"] = fullscreen.toString()
@@ -254,6 +223,14 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             val result = GetInternetUseCase(internetRepository = InternetDataRepository(context = getApplication())).execute()
             withContext(Dispatchers.Main){
                 mutableInternetLiveData.value = result
+            }
+        }
+    }
+    fun initialFacebook(id: String, token: String, intent: Intent) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = InitialFacebookUseCase(repository = FacebookDataRepository(context = getApplication(), intent = intent)).execute(id = id, token = token)
+            withContext(Dispatchers.Main) {
+                mutableInitFacebookLiveData.value = result
             }
         }
     }

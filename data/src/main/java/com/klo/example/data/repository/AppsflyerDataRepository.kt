@@ -17,16 +17,13 @@ class AppsflyerDataRepository (private val context: Context) : AppsflyerReposito
     override suspend fun getData(): AppsflyerModel {
         return getAppsflyer()
     }
-
     override suspend fun getAdvertisingId(): String {
         val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
         return adInfo.id.toString()
     }
-
     override suspend fun getAppsflyerId(): String {
         return AppsFlyerLib.getInstance().getAppsFlyerUID(context).toString()
     }
-
     private suspend fun getAppsflyer() : AppsflyerModel = suspendCoroutine {
         val listener = object : AppsFlyerConversionListener {
             override fun onConversionDataSuccess(conversionData: MutableMap<String, Any>?) {

@@ -13,16 +13,19 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 
-class FacebookDataRepository (private val context: Context, private val intent: Intent, private val id: String, private val token: String) : FacebookRepository {
-    override suspend fun getCampaign(): FacebookModel? {
+class FacebookDataRepository (private val context: Context, private val intent: Intent) : FacebookRepository {
+    override suspend fun getCampaign(): FacebookModel {
+        return FacebookModel(
+            campaign = getData()
+        )
+    }
+    override suspend fun getInitialData(id: String, token: String): Boolean {
         FacebookSdk.setApplicationId(id)
         FacebookSdk.setClientToken(token)
         FacebookSdk.sdkInitialize(context.applicationContext)
         FacebookSdk.setAutoInitEnabled(true)
         FacebookSdk.fullyInitialize()
-        return FacebookModel(
-            campaign = getData()
-        )
+        return FacebookSdk.isInitialized()
     }
     private suspend fun getData() : String? = suspendCoroutine {
         AppLinkData.fetchDeferredAppLinkData(context.applicationContext, AppLinkData.CompletionHandler { appLink ->

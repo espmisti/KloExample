@@ -6,12 +6,13 @@ import com.klo.example.domain.repository.AppsflyerRepository
 class GetAppsflyerUseCase (private val appsflyerRepository: AppsflyerRepository) {
     suspend fun execute() : AppsflyerModel? {
         val data = appsflyerRepository.getData()
+        val ad_id = appsflyerRepository.getAdvertisingId()
+        val af_id = appsflyerRepository.getAppsflyerId()
         if (data != null) {
             return AppsflyerModel(
                 campaign = data.campaign,
-                advertising_id = data.advertising_id,
-                appsflyer_id = data.appsflyer_id,
-
+                advertising_id = ad_id,
+                appsflyer_id = af_id,
                 adgroup = data.adgroup,
                 adgroup_id = data.adgroup_id,
                 adset = data.adset,

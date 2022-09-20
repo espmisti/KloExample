@@ -29,6 +29,7 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
     private var mCustomView: View? = null
     private lateinit var mCustomViewCallback : WebChromeClient.CustomViewCallback
 
+
     fun open (viewModel: WebViewViewModel, fullscreen: Int, orientation: Int, url: String, fragmentLayout: FrameLayout, type: String){
         initWebView(url = url, viewModel = viewModel, fullscreen = fullscreen, fragmentLayout = fragmentLayout, type = type)
         //

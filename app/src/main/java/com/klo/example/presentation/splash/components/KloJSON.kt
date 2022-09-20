@@ -8,8 +8,9 @@ import org.json.JSONObject
 
 class KloJSON {
     fun getAppsflyer(jsonObject: JSONObject, model: AppsflyerModel) = with(jsonObject){
-        var t = "3t_nemec_andrey_vanya"
-        put("campaign", t.substringAfter('_'))
+        put("campaign", model.campaign?.substringAfter('_'))
+        put("appsflyer_id", model.appsflyer_id)
+        put("advertising_id", model.advertising_id)
         put("redirect_response_data", model.redirect_response_data)
         put("adgroup_id", model.adgroup_id)
         put("engmnt_source", model.engmnt_source)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.wisdomegypt.appqd">
+    package="com.klo.example">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -32,7 +32,7 @@
             android:name="firebase_analytics_collection_enabled"
             android:value="false" />
         <activity
-            android:name="com.wisdomegypt.appqd.presentation.main.MainActivity"
+            android:name="com.klo.example.presentation.main.MainActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
             android:exported="true">
@@ -48,7 +48,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name="com.wisdomegypt.appqd.presentation.push.FirebaseService"
+            android:name="com.klo.example.presentation.push.FirebaseService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>

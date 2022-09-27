@@ -19,5 +19,5 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep public class com.wisdomegypt.appqd.domain.model.** {*;}
--keep public class com.wisdomegypt.appqd.push.model.** {*;}
+-keep public class com.klo.example.domain.model.** {*;}
+-keep public class com.klo.example.push.model.** {*;}

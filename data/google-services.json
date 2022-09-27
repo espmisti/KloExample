@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "802378630069",
+    "project_id": "wisdom-of-egypt",
+    "storage_bucket": "wisdom-of-egypt.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802378630069:android:b28ce5e540b54edd2b8ffc",
+        "android_client_info": {
+          "package_name": "com.wisdomegypt.appqd.data"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "802378630069-9jqcpaquevuagcee93a5v84k4g5594kl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgFmfMJ3XJL3pa0ctgzlbwxWTJF9Fce3w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "802378630069-9jqcpaquevuagcee93a5v84k4g5594kl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

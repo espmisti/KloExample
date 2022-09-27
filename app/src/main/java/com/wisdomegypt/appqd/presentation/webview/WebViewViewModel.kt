@@ -1,0 +1,33 @@
+package com.wisdomegypt.appqd.presentation.webview
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.wisdomegypt.appqd.data.repository.SharedPrefDataRepository
+import com.wisdomegypt.appqd.domain.usecase.SaveSharedPrefUseCase
+import com.wisdomegypt.appqd.obfuscation.Controller
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+class WebViewViewModel(application: Application) : AndroidViewModel(application) {
+
+    val mutableSaveSharedPrefLiveData : MutableLiveData<Boolean> = MutableLiveData()
+    //
+
+    fun saveSharedPrefs(url: String? = null, fullscreen: Int? = null, orientation: Int? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = SaveSharedPrefUseCase(sharedPrefRepository = SharedPrefDataRepository(context = getApplication())).execute(
+                url = url,
+                fullscreen = fullscreen,
+                orientation = orientation
+            )
+            withContext(Dispatchers.Main) {
+                if(Controller().obf()) mutableSaveSharedPrefLiveData.value = result
+            }
+        }
+    }
+
+    
+}

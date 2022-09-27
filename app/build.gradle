@@ -8,11 +8,11 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.klo.example"
+        applicationId "com.wisdomegypt.appqd"
         minSdk 23
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 4
+        versionName "4.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -48,5 +48,10 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0-alpha02"
     //
+    implementation "io.coil-kt:coil:1.1.1"
+    implementation 'com.android.volley:volley:1.2.1'
     implementation 'com.appsflyer:af-android-sdk:6.5.4'
+    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.8'
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
 }

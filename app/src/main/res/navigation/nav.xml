@@ -6,7 +6,7 @@
     app:startDestination="@id/splashFragment">
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.klo.example.presentation.splash.SplashFragment"
+        android:name="com.wisdomegypt.appqd.presentation.splash.SplashFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash" >
         <action
@@ -18,6 +18,6 @@
     </fragment>
     <fragment
         android:id="@+id/webViewFragment"
-        android:name="com.klo.example.presentation.webview.WebViewFragment"
+        android:name="com.wisdomegypt.appqd.presentation.webview.WebViewFragment"
         android:label="WebViewFragment" />
 </navigation>

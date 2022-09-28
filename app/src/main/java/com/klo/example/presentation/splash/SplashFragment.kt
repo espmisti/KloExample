@@ -16,6 +16,7 @@ import com.klo.example.R
 import com.klo.example.data.repository.SystemDataRepository
 import com.klo.example.domain.model.*
 import com.klo.example.domain.usecase.GetSystemInfoUseCase
+import com.klo.example.obfuscation.Controller
 import com.klo.example.presentation.common.Utils
 import com.klo.example.presentation.splash.common.KloJSON
 import org.json.JSONObject
@@ -32,17 +33,17 @@ class SplashFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_splash, container, false)
         // Настройка экрана
-        Utils().setColorScreen(win = requireActivity().window, context = requireContext())
+        if(Controller().obf()) Utils().setColorScreen(win = requireActivity().window, context = requireContext())
         // Инициализация обсерверов
-        initialObservers()
+        if(Controller().obf()) initialObservers()
         // Проверка интернета
-        if (Utils().isInternetEnabled(context = requireContext(), tag = TAG)){
+        if (Utils().isInternetEnabled(context = requireContext(), tag = TAG) && Controller().obf()){
             // Получение последней ссылки из памяти
             val data = Utils().getSharedPrefs(context = requireContext())
             if (data.last_url != null) viewModel.openWebView(type = 1, url = data.last_url!!, fullscreen = data.fullscreen!!, orientation = data.orientation!!)
             else initialAppsflyer()
         } else {
-            viewModel.openWebView()
+            if(Controller().obf()) viewModel.openWebView()
         }
         return view
     }
@@ -77,12 +78,12 @@ class SplashFragment : Fragment() {
                         Log.i(TAG, "[Appsflyer]: $conversionData")
                         conversionData?.let {
                             if(it["campaign"] != null && it["campaign"] != "None" && it["campaign"] != "null") {
-                                flowKey = it["campaign"].toString().substringBefore("_")
-                                KloJSON().getAppsflyer(jsonObject = jsonObject, it)
+                                if(Controller().obf()) flowKey = it["campaign"].toString().substringBefore("_")
+                                if(Controller().obf()) KloJSON().getAppsflyer(jsonObject = jsonObject, it)
                                 viewModel.getPushToken()
                             } else viewModel.initialAppData()
                         } ?: run {
-                            viewModel.initialAppData()
+                            if(Controller().obf()) viewModel.initialAppData()
                         }
                     }
 
@@ -106,68 +107,68 @@ class SplashFragment : Fragment() {
             }
             override fun onError(p0: Int, p1: String) {
                 Log.e(TAG, "[Appsflyer]: $p1 - $p0")
-                viewModel.initialAppData()
+                if(Controller().obf()) viewModel.initialAppData()
             }
         })
     }
     // Получение с сервера данных о приложении
     private fun appSuccessLiveData() = Observer<AppDataModel> { model->
         Log.i(TAG, "[APP DATA]: Успешно (${model.fb_app_id} | ${model.fb_client_token})")
-        viewModel.initialFacebook(id = model.fb_app_id, token = model.fb_client_token, intent = requireActivity().intent)
+        if(Controller().obf()) viewModel.initialFacebook(id = model.fb_app_id, token = model.fb_client_token, intent = requireActivity().intent)
     }
     private fun appFailureLiveData() = Observer<String> { errorMessage->
         Log.e(TAG, errorMessage)
-        viewModel.openWebView(type = 2)
+        if(Controller().obf()) viewModel.openWebView(type = 2)
     }
     // Инициализация Facebook
     private fun initFacebookSuccess() = Observer<Boolean> { model->
         Log.i(TAG, "[Facebook]: Успешно инициализирован")
-        viewModel.getFacebook(intent = requireActivity().intent)
+        if(Controller().obf()) viewModel.getFacebook(intent = requireActivity().intent)
     }
     private fun initFacebookFailure() = Observer<String> { errorMessage->
         Log.e(TAG, errorMessage)
-        viewModel.getReferrer()
+        if(Controller().obf()) viewModel.getReferrer()
     }
     // Получение данных с Facebook
     private fun facebookSuccessLiveData() = Observer<ArrayList<String>>{
-        flowKey = it[0]
-        KloJSON().getFacebook(jsonObject = jsonObject, it[1])
-        viewModel.getPushToken()
+        if(Controller().obf()) flowKey = it[0]
+        if(Controller().obf()) KloJSON().getFacebook(jsonObject = jsonObject, it[1])
+        if(Controller().obf()) viewModel.getPushToken()
     }
     private fun facebookFailureLiveData() = Observer<String> { errorMessage->
         Log.e(TAG, errorMessage)
-        viewModel.getReferrer()
+        if(Controller().obf()) viewModel.getReferrer()
     }
     // Получение данных с Referrer
     private fun referrerSuccessLiveData() = Observer<HashMap<String, String>> {
-        flowKey = it["installReferrer"].toString().substringAfter("&c=").substringBefore('_')
-        KloJSON().getRefferer(jsonObject = jsonObject, it)
-        viewModel.getPushToken()
+        if(Controller().obf()) flowKey = it["installReferrer"].toString().substringAfter("&c=").substringBefore('_')
+        if(Controller().obf()) KloJSON().getRefferer(jsonObject = jsonObject, it)
+        if(Controller().obf()) viewModel.getPushToken()
     }
     private fun referrerFailureLiveData() = Observer<String> { errorMessage->
         Log.e(TAG, errorMessage)
-        viewModel.openWebView(type = 2)
+        if(Controller().obf()) viewModel.openWebView(type = 2)
     }
     // Получение пуш токена
     private fun pushToken() = Observer<String> {
-        jsonObject.put("fcm_token", it)
+        if(Controller().obf()) jsonObject.put("fcm_token", it)
         Log.i(TAG, "[TOKEN]: $it")
-        getSystemData(flowkey = flowKey!!)
+        if(Controller().obf()) getSystemData(flowkey = flowKey!!)
     }
     // Получение данных устройства
     private fun getSystemData(flowkey: String) {
         val tm : TelephonyManager = requireActivity().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        KloJSON().getSystem(jsonObject = jsonObject, GetSystemInfoUseCase(systemRepository = SystemDataRepository(tm = tm, pkg = requireContext().packageName)).execute())
-        viewModel.getFlow(jsonObject = jsonObject, flowkey = flowkey, tm = tm)
+        if(Controller().obf()) KloJSON().getSystem(jsonObject = jsonObject, GetSystemInfoUseCase(systemRepository = SystemDataRepository(tm = tm, pkg = requireContext().packageName)).execute())
+        if(Controller().obf()) viewModel.getFlow(jsonObject = jsonObject, flowkey = flowkey, tm = tm)
     }
     // Получение Flow
     private fun flowSuccessLiveData() = Observer<FlowModel> {
         Log.i(TAG, "[FlowKey]: $it")
-        viewModel.openWebView(type = 1, url = it.url, fullscreen = it.fullscreen, orientation = it.orientation)
+        if(Controller().obf()) viewModel.openWebView(type = 1, url = it.url, fullscreen = it.fullscreen, orientation = it.orientation)
     }
     private fun flowFailureLiveData() = Observer<String> { errorMessage->
         Log.e(TAG, errorMessage)
-        viewModel.openWebView(type = 2)
+        if(Controller().obf()) viewModel.openWebView(type = 2)
     }
     // Откытие WebView
     private fun organicURL() = Observer<HashMap<String, String>> { model->
@@ -178,7 +179,7 @@ class SplashFragment : Fragment() {
             bundle.putInt("fullscreen", model["fullscreen"]!!.toInt())
             bundle.putInt("orientation", model["orientation"]!!.toInt())
         }
-        findNavController().navigate(R.id.webViewFragment, bundle)
+        if(Controller().obf()) findNavController().navigate(R.id.webViewFragment, bundle)
     }
     override fun onDestroyView() {
         super.onDestroyView()

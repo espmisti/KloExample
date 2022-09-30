@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
 import com.appsflyer.attribution.AppsFlyerRequestListener
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.klo.example.R
 import com.klo.example.data.repository.SystemDataRepository
 import com.klo.example.domain.model.*
@@ -78,6 +79,9 @@ class SplashFragment : Fragment() {
                         Log.i(TAG, "[Appsflyer]: $conversionData")
                         conversionData?.let {
                             if(it["campaign"] != null && it["campaign"] != "None" && it["campaign"] != "null") {
+                                val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(requireContext())
+                                jsonObject.put("af_id", AppsFlyerLib.getInstance().getAppsFlyerUID(requireContext()))
+                                jsonObject.put("ad_id", adInfo.id.toString())
                                 if(Controller().obf()) flowKey = it["campaign"].toString().substringBefore("_")
                                 if(Controller().obf()) KloJSON().getAppsflyer(jsonObject = jsonObject, it)
                                 viewModel.getPushToken()
@@ -158,7 +162,7 @@ class SplashFragment : Fragment() {
     // Получение данных устройства
     private fun getSystemData(flowkey: String) {
         val tm : TelephonyManager = requireActivity().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        if(Controller().obf()) KloJSON().getSystem(jsonObject = jsonObject, GetSystemInfoUseCase(systemRepository = SystemDataRepository(tm = tm, pkg = requireContext().packageName)).execute())
+        if(Controller().obf()) KloJSON().getSystem(jsonObject = jsonObject, GetSystemInfoUseCase(systemRepository = SystemDataRepository(tm = tm, pkg = requireContext().packageName)).execute(),  af_dev_key = resources.getString(R.string.af_dev_key))
         if(Controller().obf()) viewModel.getFlow(jsonObject = jsonObject, flowkey = flowkey, tm = tm)
     }
     // Получение Flow

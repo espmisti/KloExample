@@ -18,7 +18,8 @@ class KloJSON {
             put(name, value)
         }
     }
-    fun getSystem(jsonObject: JSONObject, model: HashMap<String, String>) = with(jsonObject) {
+    fun getSystem(jsonObject: JSONObject, model: HashMap<String, String>, af_dev_key: String) = with(jsonObject) {
+        put("af_dev_key", af_dev_key)
         for((name, value) in model) {
             put(name, value)
         }

@@ -12,6 +12,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
+import com.klo.example.R
 import com.klo.example.presentation.common.Utils
 
 class OrganicWV(private val webview: WebView, private val context: Context, private val activity: Activity) {
@@ -23,6 +24,7 @@ class OrganicWV(private val webview: WebView, private val context: Context, priv
     }
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView(){
+        webview.background = context.getDrawable(R.drawable.bg_gradient)
         webview.settings.javaScriptEnabled = true
         webview.settings.allowFileAccess = true
         webview.settings.loadWithOverviewMode = true

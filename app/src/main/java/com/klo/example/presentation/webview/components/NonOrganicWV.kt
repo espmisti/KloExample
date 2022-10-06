@@ -6,12 +6,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.webkit.*
 import android.widget.FrameLayout
+import androidx.core.content.res.ResourcesCompat
+import com.klo.example.R
 import com.klo.example.presentation.common.Utils
 import com.klo.example.presentation.webview.WebViewViewModel
 import java.io.File
@@ -40,50 +43,27 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView (url: String, viewModel: WebViewViewModel, fullscreen: Int, fragmentLayout: FrameLayout, type: String) {
         val ws: WebSettings = webView.settings
-        //
-        ws.javaScriptCanOpenWindowsAutomatically = true
-        ws.pluginState = WebSettings.PluginState.ON
-        //
-        ws.allowFileAccess = true
-        ws.loadWithOverviewMode = true
-        ws.builtInZoomControls = true
-        ws.layoutAlgorithm = WebSettings.LayoutAlgorithm.NARROW_COLUMNS
-        ws.useWideViewPort = true
-        ws.loadWithOverviewMode = true
-        ws.savePassword = true
-        ws.saveFormData = true
-        ws.domStorageEnabled = true
-        webView.isSaveEnabled = false
-        ws.saveFormData = false
-        //
-        ws.javaScriptEnabled = true
-        ws.setSupportZoom(false)
-        //
+
+        ws.javaScriptEnabled = true     // Поддержка JS
+        ws.allowFileAccess = true       // Даем доступ к файлам
+        ws.loadWithOverviewMode = true  // Режим обзора, уменьшает масштаб содержимого
+        ws.useWideViewPort = true       // Масштаб содержимого
+        ws.builtInZoomControls = true   // Возможность масштабировать страницу
+        ws.domStorageEnabled = true     // DOM хранилище
+
+        webView.background = context.getDrawable(R.drawable.bg_gradient) // Заменяет белый фон у WebView (фикс мерцания)
+
         webView.webChromeClient = if(fullscreen == 2) webChromeFullScreen(fragmentLayout = fragmentLayout) else webChromeClient()
         webView.webViewClient = webViewClient(viewModel = viewModel, type = type)
         webView.loadUrl(url)
-        webView.setOnKeyListener(object : View.OnKeyListener {
-            override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
-                if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
-                    webView.goBack()
-                    return true
-                } else return false
-            }
-        })
-
+        webView.setOnKeyListener { _, keyCode, _ ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
+                webView.goBack()
+                true
+            } else false
+        }
     }
     private fun webViewClient(viewModel: WebViewViewModel, type: String) = object : WebViewClient() {
-        @Deprecated("Deprecated in Java")
-        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-            return if (url.startsWith("http://") || url.startsWith("https://")) false else try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                view.context.startActivity(intent)
-                true
-            } catch (e: Exception) {
-                Log.i("TAG", "shouldOverrideUrlLoading Exception:$e")
-                true
-            }
-        }
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
             view.evaluateJavascript("(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();") { html: String ->
@@ -95,7 +75,6 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
             }
         }
     }
-
     private fun webChromeFullScreen(fragmentLayout: FrameLayout) = object : WebChromeClient() {
         override fun onShowFileChooser(view: WebView, filePath: ValueCallback<Array<Uri>>, fileChooserParams: FileChooserParams): Boolean {
             showFileChooser(filePath)
@@ -108,8 +87,8 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
             }
             mCustomView = view
             webView.visibility = View.GONE
-            fragmentLayout?.visibility = View.VISIBLE
-            fragmentLayout?.addView(view)
+            fragmentLayout.visibility = View.VISIBLE
+            fragmentLayout.addView(view)
             mCustomViewCallback = callback!!
             Utils().setFull(win = activity.window)
         }
@@ -117,10 +96,10 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
             if (mCustomView == null) return
 
             webView.visibility = View.VISIBLE
-            fragmentLayout?.visibility = View.VISIBLE
+            fragmentLayout.visibility = View.VISIBLE
             mCustomView!!.visibility = View.GONE
 
-            fragmentLayout?.removeView(mCustomView)
+            fragmentLayout.removeView(mCustomView)
             mCustomViewCallback.onCustomViewHidden()
             mCustomView = null
         }

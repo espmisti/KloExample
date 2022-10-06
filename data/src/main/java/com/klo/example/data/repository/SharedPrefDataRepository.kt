@@ -6,8 +6,7 @@ import androidx.security.crypto.MasterKey
 import com.klo.example.domain.repository.SharedPrefRepository
 
 class SharedPrefDataRepository(private val context: Context) : SharedPrefRepository {
-    val masterKey = MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build()
-    val sPrefs = EncryptedSharedPreferences.create(context, "setting", masterKey, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV, EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+    val sPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
     //////////////////////////////////////////////////////////////
     override fun getLastURL(): String? {

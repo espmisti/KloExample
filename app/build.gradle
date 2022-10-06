@@ -44,6 +44,7 @@ dependencies {
     implementation project(path: ':data')
     implementation project(path: ':domain')
     implementation project(path: ':obfuscation')
+    implementation project(path: ':log')
     // C O R O U T I N E S
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0-alpha02"

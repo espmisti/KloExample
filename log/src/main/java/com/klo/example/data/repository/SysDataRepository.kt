@@ -1,14 +1,11 @@
 package com.klo.example.data.repository
 
 import android.os.Build
-import android.telephony.TelephonyManager
-import com.klo.example.data.Constants
-import com.klo.example.domain.repository.SystemRepository
+import com.klo.example.domain.repository.LogDataRepository
 import java.util.*
-import kotlin.collections.HashMap
 
-class SystemDataRepository(private val tm: TelephonyManager, private val pkg: String) : SystemRepository{
-    override fun getData(): HashMap<String, String> {
+class SysDataRepository(private val ) : LogDataRepository {
+    override fun getData() {
         val map = hashMapOf<String, String>()
         map["carrier_name"] = tm.simOperatorName
         map["carrier_id"] = tm.networkOperator
@@ -21,6 +18,7 @@ class SystemDataRepository(private val tm: TelephonyManager, private val pkg: St
         map["time_offset"] = TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT)
         map["time_zone"] = TimeZone.getDefault().id
         map["package_name"] = pkg
+        map["app_ver"] = "error"
         map["app_id"] = Constants.SYSTEM.APP_ID
         return map
     }

@@ -8,14 +8,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class LogSystem {
-    private val file: File? = null
+    private var file: File? = null
     fun initial(tm: TelephonyManager) {
-        val file = File(getFileName(tm = tm))
+        file = File(getFileName(tm = tm))
     }
     fun sendFile() {}
 
-    fun writeFile() {
-        file?.writeText("")
+    fun writeFile(text: String) {
+        file?.writeText(text)
     }
 
     private fun getFileName(tm: TelephonyManager) : String {

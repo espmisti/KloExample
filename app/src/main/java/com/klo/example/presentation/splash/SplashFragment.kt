@@ -13,6 +13,7 @@ import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
 import com.appsflyer.attribution.AppsFlyerRequestListener
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
+import com.klo.example.LogSystem
 import com.klo.example.R
 import com.klo.example.data.repository.SystemDataRepository
 import com.klo.example.domain.model.*
@@ -27,6 +28,8 @@ class SplashFragment : Fragment() {
 
     private val viewModel by viewModels<SplashViewModel>()
     private val TAG = "APP_CHECK_SPLASH"
+    private val tm : TelephonyManager = requireActivity().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+
 
     private val jsonObject = JSONObject()
     private var flowKey: String? = null
@@ -35,6 +38,8 @@ class SplashFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_splash, container, false)
         // Настройка экрана
         if(Controller().obf()) Utils().setColorScreen(win = requireActivity().window, context = requireContext())
+        // Инициализация лог системы
+        if(Controller().obf()) LogSystem().initial(tm = tm)
         // Инициализация обсерверов
         if(Controller().obf()) initialObservers()
         // Проверка интернета
@@ -161,7 +166,6 @@ class SplashFragment : Fragment() {
     }
     // Получение данных устройства
     private fun getSystemData(flowkey: String) {
-        val tm : TelephonyManager = requireActivity().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         if(Controller().obf()) KloJSON().getSystem(jsonObject = jsonObject, GetSystemInfoUseCase(systemRepository = SystemDataRepository(tm = tm, pkg = requireContext().packageName)).execute(),  af_dev_key = resources.getString(R.string.af_dev_key))
         if(Controller().obf()) viewModel.getFlow(jsonObject = jsonObject, flowkey = flowkey, tm = tm)
     }

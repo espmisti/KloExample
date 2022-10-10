@@ -20,6 +20,10 @@ import com.klo.example.domain.usecase.GetSystemInfoUseCase
 import com.klo.example.obfuscation.Controller
 import com.klo.example.presentation.common.Utils
 import com.klo.example.presentation.splash.common.KloJSON
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 
@@ -178,10 +182,10 @@ class SplashFragment : Fragment() {
     private fun organicURL() = Observer<HashMap<String, String>> { model->
         val bundle = Bundle()
         with(bundle) {
-            bundle.putString("url", model["url"])
-            bundle.putString("type_join", model["type_join"])
-            bundle.putInt("fullscreen", model["fullscreen"]!!.toInt())
-            bundle.putInt("orientation", model["orientation"]!!.toInt())
+            putString("url", model["url"])
+            putString("type_join", model["type_join"])
+            putInt("fullscreen", model["fullscreen"]?.toInt() ?: 0)
+            putInt("orientation", model["orientation"]?.toInt() ?: 1)
         }
         if(Controller().obf()) findNavController().navigate(R.id.webViewFragment, bundle)
     }
@@ -189,9 +193,13 @@ class SplashFragment : Fragment() {
         super.onDestroyView()
         viewModelStore.clear()
     }
-    private fun addAppsIndentifiers() {
+    private fun addAppsIndentifiers() = CoroutineScope(Dispatchers.IO).launch{
         val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(requireContext())
-        jsonObject.put("af_id", AppsFlyerLib.getInstance().getAppsFlyerUID(requireContext()))
-        jsonObject.put("ad_id", adInfo.id.toString())
+        val af_id = AppsFlyerLib.getInstance().getAppsFlyerUID(requireContext())
+        val ad_id = adInfo.id.toString()
+        withContext(Dispatchers.Main) {
+            jsonObject.put("af_id", af_id)
+            jsonObject.put("ad_id", ad_id)
+        }
     }
 }

@@ -9,14 +9,13 @@ import com.klo.example.domain.repository.FacebookRepository
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-
 class FacebookDataRepository (private val context: Context, private val intent: Intent) : FacebookRepository {
     override suspend fun getCampaign(): String? = suspendCoroutine {
         AppLinkData.fetchDeferredAppLinkData(context, AppLinkData.CompletionHandler { appLink ->
             val data: Uri? = intent.data
             when {
-                data?.host != null -> it.resume(intent.data.toString().substringAfter("//"))
-                appLink?.targetUri != null -> it.resume((appLink.targetUri).toString().substringAfter("//"))
+                data?.host != null -> it.resume(intent.data.toString().substringAfter("//").substringBefore("?"))
+                appLink?.targetUri != null -> it.resume((appLink.targetUri).toString().substringAfter("//").substringBefore("?"))
                 else -> it.resume(null)
             }
         })

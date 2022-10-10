@@ -86,7 +86,6 @@ class WebViewFragment : Fragment() {
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode != IC || mFilePathCallback == null) {
-            super.onActivityResult(requestCode, resultCode, data)
             return
         }
         var results: Array<Uri>? = null
@@ -110,9 +109,9 @@ class WebViewFragment : Fragment() {
         viewModel.mutableSaveSharedPrefLiveData.observe(viewLifecycleOwner, sharedPrefLiveData())
     }
     private fun setDefaultColorBar() {
-        requireActivity().window.navigationBarColor = requireContext().resources.getColor(R.color.white)
+        requireActivity().window.navigationBarColor = requireContext().getColor(R.color.white)
         requireActivity().window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        requireActivity().window.statusBarColor = requireContext().resources.getColor(R.color.white)
+        requireActivity().window.statusBarColor = requireContext().getColor(R.color.white)
     }
     override fun onStart() {
         super.onStart()

@@ -6,7 +6,6 @@ plugins {
 
 android {
     compileSdk 33
-
     defaultConfig {
         minSdk 23
         targetSdk 33
@@ -14,7 +13,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
-
     buildTypes {
         release {
             minifyEnabled true
@@ -38,8 +36,6 @@ dependencies {
     def retrofit_version = "2.9.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
-    // SharedPreference Crypto
-    implementation "androidx.security:security-crypto:1.1.0-alpha03"
     // Facebook
     implementation 'com.facebook.android:facebook-android-sdk:latest.release'
     // Appsflyer

@@ -13,7 +13,7 @@ class KloJSON {
         put("campaign", campaign)
     }
     fun getRefferer(jsonObject: JSONObject, model: HashMap<String, String>) = with(jsonObject) {
-        put("campaign", model["installReferrer"].toString().substringAfter("&c=").substringAfter("_"))
+        put("campaign", model["installReferrer"].toString().substringAfter("&c=").substringBefore("&"))
         for((name, value) in model) {
             put(name, value)
         }

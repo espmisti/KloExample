@@ -38,7 +38,7 @@ class SplashFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_splash, container, false)
         // Настройка экрана
-        if(Controller().obf()) Utils().setColorScreen(win = requireActivity().window, context = requireContext())
+        if(Controller().obf()) Utils().setFull(win = requireActivity().window)
         // Инициализация обсерверов
         if(Controller().obf()) initialObservers()
         // Проверка интернета

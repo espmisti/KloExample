@@ -24,7 +24,7 @@ class OrganicWV(private val webview: WebView, private val context: Context, priv
     }
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView(){
-        webview.background = context.getDrawable(R.drawable.bg_gradient)
+        webview.background = context.getDrawable(R.drawable.bg)
         webview.settings.javaScriptEnabled = true
         webview.settings.allowFileAccess = true
         webview.settings.loadWithOverviewMode = true

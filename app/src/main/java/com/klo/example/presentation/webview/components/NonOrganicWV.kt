@@ -6,14 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.view.*
 import android.webkit.*
 import android.widget.FrameLayout
-import androidx.core.content.res.ResourcesCompat
 import com.klo.example.R
 import com.klo.example.presentation.common.Utils
 import com.klo.example.presentation.webview.WebViewViewModel
@@ -51,7 +48,7 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
         ws.builtInZoomControls = true   // Возможность масштабировать страницу
         ws.domStorageEnabled = true     // DOM хранилище
 
-        webView.background = context.getDrawable(R.drawable.bg_gradient) // Заменяет белый фон у WebView (фикс мерцания)
+        webView.background = context.getDrawable(R.drawable.bg) // Заменяет белый фон у WebView (фикс мерцания)
 
         webView.webChromeClient = if(fullscreen == 2) webChromeFullScreen(fragmentLayout = fragmentLayout) else webChromeClient()
         webView.webViewClient = webViewClient(viewModel = viewModel, type = type)

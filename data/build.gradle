@@ -36,6 +36,8 @@ dependencies {
     def retrofit_version = "2.9.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+
+    implementation "com.squareup.okhttp3:okhttp:5.0.0-alpha.3"
     // Facebook
     implementation 'com.facebook.android:facebook-android-sdk:latest.release'
     // Appsflyer
@@ -43,8 +45,10 @@ dependencies {
     // Referrer
     implementation 'com.android.installreferrer:installreferrer:2.2'
     // Firebase
-    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.8'
+    implementation 'com.google.firebase:firebase-messaging-ktx:23.1.0'
     //
     implementation 'androidx.lifecycle:lifecycle-livedata:2.5.1'
+    // Advertising
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
 
 }

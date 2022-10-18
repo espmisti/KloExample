@@ -26,8 +26,8 @@ class WebViewFragment : Fragment() {
     private lateinit var wv: WebView
     private lateinit var fragmentLayout: FrameLayout
     //
-    private lateinit var white: OrganicWV
-    private lateinit var main: NonOrganicWV
+    private var white: OrganicWV? = null
+    private var main: NonOrganicWV? = null
     //
     private var type : String? = null
     private var fullscreen : Int? = null
@@ -54,7 +54,7 @@ class WebViewFragment : Fragment() {
         val orientation = requireArguments().getInt("orientation", 0)
 
         if((type == "non-organic" || type == "organic_url") && url != null && Controller().obf()) {
-            main.open(
+            main?.open(
                 type = type!!,
                 viewModel = viewModel,
                 fullscreen = fullscreen!!,
@@ -69,7 +69,7 @@ class WebViewFragment : Fragment() {
                     orientation = orientation
                 )
             }
-        } else white.open()
+        } else white?.open()
         return view
     }
 

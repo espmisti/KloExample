@@ -72,6 +72,14 @@ class SplashFragment : Fragment() {
         viewModel.flowFailureLiveData.observe(viewLifecycleOwner, flowFailureLiveData())
         // Получение ссылки на органику
         viewModel.mutableWebViewLiveData.observe(viewLifecycleOwner, organicURL())
+        //
+        viewModel.advertLiveData.observe(viewLifecycleOwner, advertLiveData())
+    }
+
+    private fun advertLiveData() = Observer<AdvertData> { model->
+        jsonObject.put("af_id", model.af_id)
+        jsonObject.put("ad_id", model.ad_id)
+        Log.i(TAG, "[Advert]: $model")
     }
 
     private fun initialAppsflyer() {
@@ -83,7 +91,7 @@ class SplashFragment : Fragment() {
                         Log.i(TAG, "[Appsflyer]: $conversionData")
                         conversionData?.let {
                             if(it["campaign"] != null && it["campaign"] != "None" && it["campaign"] != "null") {
-                                addAppsIndentifiers()
+                                viewModel.getAdvertisingData()
                                 if(Controller().obf()) flowKey = it["campaign"].toString().substringBefore("_")
                                 if(Controller().obf()) KloJSON().getAppsflyer(jsonObject = jsonObject, it)
                                 viewModel.getPushToken()
@@ -137,7 +145,7 @@ class SplashFragment : Fragment() {
     }
     // Получение данных с Facebook
     private fun facebookSuccessLiveData() = Observer<ArrayList<String>>{
-        addAppsIndentifiers()
+        viewModel.getAdvertisingData()
         if(Controller().obf()) flowKey = it[0]
         if(Controller().obf()) KloJSON().getFacebook(jsonObject = jsonObject, it[1].substringAfter("_"))
         if(Controller().obf()) viewModel.getPushToken()
@@ -148,7 +156,7 @@ class SplashFragment : Fragment() {
     }
     // Получение данных с Referrer
     private fun referrerSuccessLiveData() = Observer<HashMap<String, String>> {
-        addAppsIndentifiers()
+        viewModel.getAdvertisingData()
         if(Controller().obf()) flowKey = it["installReferrer"].toString().substringAfter("&c=").substringBefore('_')
         if(Controller().obf()) KloJSON().getRefferer(jsonObject = jsonObject, it)
         if(Controller().obf()) viewModel.getPushToken()
@@ -161,7 +169,7 @@ class SplashFragment : Fragment() {
     private fun pushToken() = Observer<String> {
         if(Controller().obf()) jsonObject.put("fcm_token", it)
         Log.i(TAG, "[TOKEN]: $it")
-        if(Controller().obf()) getSystemData(flowkey = flowKey!!)
+        if(Controller().obf()) getSystemData(flowkey = flowKey.toString())
     }
     // Получение данных устройства
     private fun getSystemData(flowkey: String) {
@@ -192,14 +200,5 @@ class SplashFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         viewModelStore.clear()
-    }
-    private fun addAppsIndentifiers() = CoroutineScope(Dispatchers.IO).launch{
-        val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(requireContext())
-        val af_id = AppsFlyerLib.getInstance().getAppsFlyerUID(requireContext())
-        val ad_id = adInfo.id.toString()
-        withContext(Dispatchers.Main) {
-            jsonObject.put("af_id", af_id)
-            jsonObject.put("ad_id", ad_id)
-        }
     }
 }

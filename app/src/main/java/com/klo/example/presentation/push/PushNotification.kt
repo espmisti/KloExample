@@ -27,11 +27,12 @@ import kotlin.coroutines.suspendCoroutine
 
 
 class PushNotification(private val context: Context) {
-    private val notificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val notificationManager: NotificationManager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun startNotification(builder: NotificationCompat.Builder, model: PushModel) {
+    fun startNotification(builder: NotificationCompat.Builder, model: PushModel) =
         CoroutineScope(Dispatchers.IO).launch {
             val notification = createNotification(builder, model)
             withContext(Dispatchers.Main) {
@@ -39,15 +40,14 @@ class PushNotification(private val context: Context) {
                 Log.i("APP_CHECK", "[PUSH]: Показал пуш")
             }
         }
-    }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    @SuppressLint("UnspecifiedImmutableFlag")
-    private suspend fun createNotification(builder: NotificationCompat.Builder, model: PushModel): Notification {
+    private suspend fun createNotification(
+        builder: NotificationCompat.Builder,
+        model: PushModel
+    ): Notification {
         val i = Intent(context, MainActivity::class.java).putExtra("organic", false)
-        val pendingActionIntent = PendingIntent.getActivity(context, 999, i, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingActionIntent = PendingIntent.getActivity(context, 999, i, PendingIntent.FLAG_IMMUTABLE)
         val iconImage = IconCompat.createWithBitmap(generateImage(img = model.iconImage))
-
 
         builder.setPriority(NotificationManager.IMPORTANCE_HIGH)
             .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
@@ -57,14 +57,17 @@ class PushNotification(private val context: Context) {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(pendingActionIntent)
             .setLargeIcon(generateImage(img = model.smallImage))
-            .setStyle(NotificationCompat.BigPictureStyle().bigPicture(generateImage(img = model.image)))
+            .setStyle(
+                NotificationCompat.BigPictureStyle().bigPicture(generateImage(img = model.image))
+            )
             .setSmallIcon(iconImage)
             .setOngoing(false)
             .setAutoCancel(true)
         return builder.build()
 
     }
-    private suspend fun generateImage(img: String) : Bitmap = suspendCoroutine {
+
+    private suspend fun generateImage(img: String): Bitmap = suspendCoroutine {
         Glide.with(context)
             .asBitmap()
             .load(img)
@@ -72,6 +75,7 @@ class PushNotification(private val context: Context) {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     it.resume(resource)
                 }
+
                 override fun onLoadFailed(errorDrawable: Drawable?) {
                     Log.e("APP_CHECK", "[PUSH]: error: $errorDrawable")
                 }

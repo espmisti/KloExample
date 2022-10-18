@@ -2,6 +2,8 @@ package com.klo.example.domain.usecase
 
 import com.klo.example.domain.repository.OrganicRepository
 
-class GetOrganicUseCase(private val organicRepository: OrganicRepository) {
-    suspend fun execute() = organicRepository.getOrganic()
+class GetOrganicUseCase(private val repository: OrganicRepository) {
+    suspend fun execute() : String? {
+        return repository.getData()?.url
+    }
 }

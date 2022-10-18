@@ -4,7 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.klo.example.data.repository.SharedPrefDataRepository
+import com.klo.example.data.repository.SharedPrefDataRepositoryImpl
+import com.klo.example.data.storage.sharedpref.SharedPrefDataStorage
 import com.klo.example.domain.usecase.SaveSharedPrefUseCase
 import com.klo.example.obfuscation.Controller
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,7 @@ class WebViewViewModel(application: Application) : AndroidViewModel(application)
 
     fun saveSharedPrefs(url: String? = null, fullscreen: Int? = null, orientation: Int? = null) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = SaveSharedPrefUseCase(sharedPrefRepository = SharedPrefDataRepository(context = getApplication())).execute(
+            val result = SaveSharedPrefUseCase(sharedPrefRepository = SharedPrefDataRepositoryImpl(sharedPrefStorage = SharedPrefDataStorage(context = getApplication()))).execute(
                 url = url,
                 fullscreen = fullscreen,
                 orientation = orientation

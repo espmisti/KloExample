@@ -1,6 +1,6 @@
 package com.klo.example.data
 
-import com.klo.example.domain.model.AppDataModel
+import com.klo.example.domain.model.AppData
 import com.klo.example.domain.model.FlowModel
 import com.klo.example.domain.model.OrganicModel
 import okhttp3.RequestBody
@@ -16,7 +16,7 @@ interface APIService {
     suspend fun getAppInfo(
         @Query("token") token : String = Constants.API.TOKEN,
         @Query("package") pkg : String
-    ) : Response<AppDataModel>
+    ) : Response<AppData>
 
     @POST(Constants.API.ROUTES.URL_OFFER)
     suspend fun getFlow(

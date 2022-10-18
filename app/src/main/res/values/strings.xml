@@ -2,5 +2,5 @@
     <string name="app_name">KloExample - v.3</string>
     <string name="default_notification_channel_id">1</string>
     <!--  Appsflyer TOKEN  -->
-    <string name="af_dev_key"></string>
+    <string name="af_dev_key">okkpPZQHkxNotyrpigEDem</string>
 </resources>

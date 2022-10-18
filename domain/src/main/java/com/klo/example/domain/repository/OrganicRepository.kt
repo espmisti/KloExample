@@ -1,5 +1,7 @@
 package com.klo.example.domain.repository
 
+import com.klo.example.domain.model.OrganicModel
+
 interface OrganicRepository {
-    suspend fun getOrganic() : String?
+    suspend fun getData() : OrganicModel?
 }

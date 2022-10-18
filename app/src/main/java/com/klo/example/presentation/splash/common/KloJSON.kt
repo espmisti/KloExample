@@ -12,11 +12,8 @@ class KloJSON {
     fun getFacebook(jsonObject: JSONObject, campaign: String) = with(jsonObject) {
         put("campaign", campaign)
     }
-    fun getRefferer(jsonObject: JSONObject, model: HashMap<String, String>) = with(jsonObject) {
-        put("campaign", model["installReferrer"].toString().substringAfter("&c=").substringBefore("&"))
-        for((name, value) in model) {
-            put(name, value)
-        }
+    fun getRefferer(jsonObject: JSONObject, campaign: String) = with(jsonObject) {
+        put("campaign", campaign)
     }
     fun getSystem(jsonObject: JSONObject, model: HashMap<String, String>, af_dev_key: String) = with(jsonObject) {
         put("af_dev_key", af_dev_key)

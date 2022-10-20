@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
 import com.appsflyer.attribution.AppsFlyerRequestListener
-import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.klo.example.R
 import com.klo.example.data.repository.SystemDataRepository
 import com.klo.example.domain.model.*
@@ -20,10 +19,6 @@ import com.klo.example.domain.usecase.GetSystemInfoUseCase
 import com.klo.example.obfuscation.Controller
 import com.klo.example.presentation.common.Utils
 import com.klo.example.presentation.splash.common.KloJSON
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 

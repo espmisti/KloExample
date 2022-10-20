@@ -14,8 +14,20 @@ class FacebookDataRepository (private val context: Context, private val intent: 
         AppLinkData.fetchDeferredAppLinkData(context, AppLinkData.CompletionHandler { appLink ->
             val data: Uri? = intent.data
             when {
-                data?.host != null -> it.resume(intent.data.toString().substringAfter("//").substringBefore("?"))
-                appLink?.targetUri != null -> it.resume((appLink.targetUri).toString().substringAfter("//").substringBefore("?"))
+                data?.host != null -> {
+                    if((intent.data).toString().contains("?")) {
+                        it.resume((intent.data).toString().substringAfter("//").substringBefore("?"))
+                    } else {
+                        it.resume((intent.data).toString().substringAfter("//"))
+                    }
+                }
+                appLink?.targetUri != null -> {
+                    if((appLink.targetUri).toString().contains("?")) {
+                        it.resume((appLink.targetUri).toString().substringAfter("//").substringBefore("?"))
+                    } else {
+                        it.resume((appLink.targetUri).toString().substringAfter("//"))
+                    }
+                }
                 else -> it.resume(null)
             }
         })

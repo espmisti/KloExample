@@ -8,11 +8,11 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
 import com.appsflyer.attribution.AppsFlyerRequestListener
-import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.klo.example.R
 import com.klo.example.data.repository.SystemDataRepository
 import com.klo.example.domain.model.*
@@ -20,12 +20,9 @@ import com.klo.example.domain.usecase.GetSystemInfoUseCase
 import com.klo.example.obfuscation.Controller
 import com.klo.example.presentation.common.Utils
 import com.klo.example.presentation.splash.common.KloJSON
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.klo.example.presentation.webview.WebViewModel
+import com.klo.example.presentation.webview.WebViewModelFactory
 import org.json.JSONObject
-
 
 class SplashFragment : Fragment() {
 
@@ -37,8 +34,6 @@ class SplashFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_splash, container, false)
-        // Настройка экрана
-        if(Controller().obf()) Utils().setFull(win = requireActivity().window)
         // Инициализация обсерверов
         if(Controller().obf()) initialObservers()
         // Проверка интернета

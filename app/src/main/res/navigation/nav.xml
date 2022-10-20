@@ -18,6 +18,6 @@
     </fragment>
     <fragment
         android:id="@+id/webViewFragment"
-        android:name="com.klo.example.presentation.webview.WebViewFragment"
+        android:name="com.klo.example.presentation.webview.WebFragment"
         android:label="WebViewFragment" />
 </navigation>

@@ -11,17 +11,16 @@ import android.provider.MediaStore
 import android.view.*
 import android.webkit.*
 import android.widget.FrameLayout
+import androidx.appcompat.content.res.AppCompatResources
 import com.klo.example.R
 import com.klo.example.presentation.common.Utils
-import com.klo.example.presentation.webview.WebViewViewModel
+import com.klo.example.presentation.webview.WebViewModel
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NonOrganicWV(private val webView: WebView, private val context: Context, private val activity: Activity) {
-    //
-    private val white = OrganicWV(webview = webView, context = context, activity = activity)
+class NonOrganicWV(private val webView: WebView, private val context: Context, private val activity: Activity, private val white: OrganicWV?) {
     //
     private var mFilePathCallback: ValueCallback<Array<Uri>>? = null
     private var mCameraPhotoPath: String? = null
@@ -30,7 +29,7 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
     private var mCustomViewCallback : WebChromeClient.CustomViewCallback? = null
 
 
-    fun open (viewModel: WebViewViewModel, fullscreen: Int, orientation: Int, url: String, fragmentLayout: FrameLayout, type: String){
+    fun open (viewModel: WebViewModel, fullscreen: Int, orientation: Int, url: String, fragmentLayout: FrameLayout, type: String){
         initWebView(url = url, viewModel = viewModel, fullscreen = fullscreen, fragmentLayout = fragmentLayout, type = type)
         //
         if(fullscreen == 1) Utils().setFull(win = activity.window, false)
@@ -38,7 +37,7 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun initWebView (url: String, viewModel: WebViewViewModel, fullscreen: Int, fragmentLayout: FrameLayout, type: String) {
+    private fun initWebView (url: String, viewModel: WebViewModel, fullscreen: Int, fragmentLayout: FrameLayout, type: String) {
         val ws: WebSettings = webView.settings
 
         ws.javaScriptEnabled = true     // Поддержка JS
@@ -48,8 +47,8 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
         ws.builtInZoomControls = true   // Возможность масштабировать страницу
         ws.domStorageEnabled = true     // DOM хранилище
 
-        webView.background = context.getDrawable(R.drawable.bg) // Заменяет белый фон у WebView (фикс мерцания)
-
+        webView.background = AppCompatResources.getDrawable(context, R.drawable.bg) // Заменяет белый фон у WebView (фикс мерцания)
+        webView.requestFocus(View.FOCUS_DOWN)
         webView.webChromeClient = if(fullscreen == 2) webChromeFullScreen(fragmentLayout = fragmentLayout) else webChromeClient()
         webView.webViewClient = webViewClient(viewModel = viewModel, type = type)
         webView.loadUrl(url)
@@ -60,12 +59,12 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
             } else false
         }
     }
-    private fun webViewClient(viewModel: WebViewViewModel, type: String) = object : WebViewClient() {
+    private fun webViewClient(viewModel: WebViewModel, type: String) = object : WebViewClient() {
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
             view.evaluateJavascript("(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();") { html: String ->
                 if (html == "\"\\u003Chtml>\\u003Chead>\\u003C/head>\\u003Cbody>\\u003C/body>\\u003C/html>\"")
-                    white.open()
+                    white?.open()
                 else {
                     if(type == "non-organic") viewModel.saveSharedPrefs(url = url)
                 }

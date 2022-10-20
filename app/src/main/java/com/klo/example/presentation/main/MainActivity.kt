@@ -16,15 +16,13 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel()
     }
     private fun createNotificationChannel() {
-        val channel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel(applicationContext.resources.getString(R.string.default_notification_channel_id), "Notification", NotificationManager.IMPORTANCE_HIGH)
-        } else {
-            TODO("VERSION.SDK_INT < O")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(applicationContext.resources.getString(R.string.default_notification_channel_id), "Notification", NotificationManager.IMPORTANCE_HIGH)
+            channel.enableLights(true)
+            channel.enableVibration(true)
+            channel.vibrationPattern = longArrayOf(1000, 1000, 1000)
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
-        channel.enableLights(true)
-        channel.enableVibration(true)
-        channel.vibrationPattern = longArrayOf(1000, 1000, 1000)
-        val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
     }
 }

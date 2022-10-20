@@ -1,8 +1,6 @@
 package com.klo.example.data.repository
 
 import android.content.Context
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.klo.example.domain.repository.SharedPrefRepository
 
 class SharedPrefDataRepository(private val context: Context) : SharedPrefRepository {

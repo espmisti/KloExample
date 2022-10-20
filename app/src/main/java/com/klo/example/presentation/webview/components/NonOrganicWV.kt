@@ -27,7 +27,7 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
     private var mCameraPhotoPath: String? = null
     //
     private var mCustomView: View? = null
-    private lateinit var mCustomViewCallback : WebChromeClient.CustomViewCallback
+    private var mCustomViewCallback : WebChromeClient.CustomViewCallback? = null
 
 
     fun open (viewModel: WebViewViewModel, fullscreen: Int, orientation: Int, url: String, fragmentLayout: FrameLayout, type: String){
@@ -97,7 +97,7 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
             mCustomView!!.visibility = View.GONE
 
             fragmentLayout.removeView(mCustomView)
-            mCustomViewCallback.onCustomViewHidden()
+            mCustomViewCallback?.onCustomViewHidden()
             mCustomView = null
         }
     }

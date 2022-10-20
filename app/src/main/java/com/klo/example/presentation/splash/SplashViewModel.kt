@@ -9,14 +9,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.klo.example.data.repository.*
+import com.klo.example.data.storage.advertising.AdvertisingDataStorage
 import com.klo.example.domain.model.*
 import com.klo.example.domain.usecase.*
 import com.klo.example.obfuscation.Controller
 import com.klo.example.presentation.common.Utils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.json.JSONObject
 
 class SplashViewModel(application: Application) : AndroidViewModel(application) {
@@ -54,6 +52,10 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     private val mutableFlowFailureLiveData = MutableLiveData<String>()
     val flowSuccessLiveData: LiveData<FlowModel> = mutableFlowSuccessLiveData
     val flowFailureLiveData: LiveData<String> = mutableFlowFailureLiveData
+
+    // Advertising
+    private val mutableAdvertLiveData = MutableLiveData<AdvertData>()
+    val advertLiveData: LiveData<AdvertData> = mutableAdvertLiveData
 
     // Открытие WebView
     val mutableWebViewLiveData : MutableLiveData<HashMap<String, String>> = MutableLiveData()
@@ -124,6 +126,12 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
                     if(Controller().obf()) mutableFlowFailureLiveData.postValue("[FlowKey]: Проблема с получением flowkey")
                 }
             }
+        }
+    }
+    fun getAdvertisingData()  = viewModelScope.launch(Dispatchers.IO) {
+        val data = GetAdvertisingDataUseCase(repository = AdvertisingRepositoryImpl(advertisingStorage = AdvertisingDataStorage(context = getApplication()))).execute()
+        withContext(Dispatchers.Main) {
+            mutableAdvertLiveData.postValue(data)
         }
     }
     fun openWebView(type: Int = 0, url: String = "", fullscreen: Int = 0, orientation: Int = 0) {

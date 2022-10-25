@@ -4,6 +4,7 @@ import com.klo.example.data.storage.AdvertisingStorage
 import com.klo.example.domain.repository.AdvertisingRepository
 
 class AdvertisingRepositoryImpl(private val advertisingStorage: AdvertisingStorage) : AdvertisingRepository {
+
     override fun getADID(): String {
         return advertisingStorage.getADID()
     }
@@ -11,4 +12,5 @@ class AdvertisingRepositoryImpl(private val advertisingStorage: AdvertisingStora
     override suspend fun getAFID(): String {
         return advertisingStorage.getAFID()
     }
+
 }

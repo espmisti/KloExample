@@ -2,7 +2,9 @@ package com.klo.example.presentation.webview.components
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Application
 import android.content.Context
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -13,13 +15,24 @@ import android.webkit.WebView
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import com.klo.example.R
+import com.klo.example.data.repository.InstallLogDataRepository
+import com.klo.example.domain.usecase.SendInstallLogUseCase
+import com.klo.example.obfuscation.Controller
 import com.klo.example.presentation.common.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 class OrganicWV(private val webview: WebView, private val context: Context, private val activity: Activity) {
     private val TAG = "APP_CHECK_ORGANIC"
     fun open () {
-        Utils().setFull(win = activity.window)
         initWebView()
+        CoroutineScope(Dispatchers.IO).launch {
+            if (Utils().isInternetEnabled(context = context, tag = "nope")) {
+                if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = context.packageName, tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager, join_type = "organic")).execute()
+            }
+        }
         Log.i(TAG, "[WebView]: Открыт вайт")
     }
     @SuppressLint("SetJavaScriptEnabled")

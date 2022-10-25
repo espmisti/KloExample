@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import com.appsflyer.AFInAppEventParameterName
+import com.appsflyer.AFInAppEventType
 import com.appsflyer.AppsFlyerConversionListener
 import com.appsflyer.AppsFlyerLib
 import com.appsflyer.attribution.AppsFlyerRequestListener
@@ -32,8 +35,6 @@ class SplashFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_splash, container, false)
-        // Настройка экрана
-        if(Controller().obf()) Utils().setFull(win = requireActivity().window)
         // Инициализация обсерверов
         if(Controller().obf()) initialObservers()
         // Проверка интернета
@@ -78,7 +79,6 @@ class SplashFragment : Fragment() {
     }
 
     private fun initialAppsflyer() {
-        AppsFlyerLib.getInstance().init(getString(R.string.af_dev_key), null, requireActivity().application)
         AppsFlyerLib.getInstance().start(requireActivity().application, getString(R.string.af_dev_key), object : AppsFlyerRequestListener {
             override fun onSuccess() {
                 val listener = object : AppsFlyerConversionListener {
@@ -98,7 +98,7 @@ class SplashFragment : Fragment() {
 
                     override fun onConversionDataFail(p0: String?) {
                         Log.i("APP_CHECK", "onConversionDataSuccess: ")
-
+                        if(Controller().obf()) viewModel.initialAppData()
                     }
 
                     override fun onAppOpenAttribution(p0: MutableMap<String, String>?) {
@@ -108,7 +108,7 @@ class SplashFragment : Fragment() {
 
                     override fun onAttributionFailure(p0: String?) {
                         Log.i("APP_CHECK", "onConversionDataSuccess: ")
-
+                        if(Controller().obf()) viewModel.initialAppData()
                     }
                 }
                 AppsFlyerLib.getInstance().registerConversionListener(requireActivity().application, listener)

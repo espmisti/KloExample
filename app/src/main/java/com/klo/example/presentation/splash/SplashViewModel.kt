@@ -119,7 +119,6 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
             val result = GetFlowUseCase(flowRepository = FlowDataRepository(jsonObject = jsonObject, flowkey = flowkey)).execute()
             withContext(Dispatchers.Main) {
                 result?.let {
-                    if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
                     if(Controller().obf()) mutableFlowSuccessLiveData.postValue(FlowModel(url = it.url, fullscreen = it.fullscreen, orientation = it.orientation))
                 } ?: run {
                     if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic"))
@@ -161,7 +160,6 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     private fun openWhite(tm: TelephonyManager, map: HashMap<String, String>, fullscreen: Int, orientation: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             if (Utils().isInternetEnabled(context = getApplication(), tag = "nope"))
-                if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "organic")).execute()
             withContext(Dispatchers.Main) {
                 if(Controller().obf()) map["type_join"] = "organic"
                 if(Controller().obf()) map["url"] = ""
@@ -173,8 +171,7 @@ class SplashViewModel(application: Application) : AndroidViewModel(application) 
     }
     private fun openURL(tm: TelephonyManager, map: HashMap<String, String>, url: String, fullscreen: Int, orientation: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            if (Utils().isInternetEnabled(context = getApplication(), tag = "nope"))
-                if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = getApplication<Application>().packageName, tm = tm, join_type = "non-organic")).execute()
+
             withContext(Dispatchers.Main) {
                 if(Controller().obf()) map["type_join"] = "non-organic"
                 if(Controller().obf()) map["url"] = url

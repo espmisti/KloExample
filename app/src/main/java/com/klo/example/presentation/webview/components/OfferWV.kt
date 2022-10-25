@@ -8,18 +8,23 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.telephony.TelephonyManager
 import android.view.*
 import android.webkit.*
 import android.widget.FrameLayout
 import com.klo.example.R
-import com.klo.example.presentation.common.Utils
-import com.klo.example.presentation.webview.WebViewViewModel
+import com.klo.example.data.repository.InstallLogDataRepository
+import com.klo.example.domain.usecase.SendInstallLogUseCase
+import com.klo.example.obfuscation.Controller
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NonOrganicWV(private val webView: WebView, private val context: Context, private val activity: Activity) {
+class OfferWV(private val webView: WebView, private val context: Context, private val activity: Activity) {
     //
     private val white = OrganicWV(webview = webView, context = context, activity = activity)
     //
@@ -30,15 +35,17 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
     private var mCustomViewCallback : WebChromeClient.CustomViewCallback? = null
 
 
-    fun open (viewModel: WebViewViewModel, fullscreen: Int, orientation: Int, url: String, fragmentLayout: FrameLayout, type: String){
-        initWebView(url = url, viewModel = viewModel, fullscreen = fullscreen, fragmentLayout = fragmentLayout, type = type)
+    fun open (fullscreen: Int, orientation: Int, url: String, fragmentLayout: FrameLayout){
+        initWebView(url = url, fullscreen = fullscreen, fragmentLayout = fragmentLayout)
         //
-        if(fullscreen == 1) Utils().setFull(win = activity.window, false)
+        CoroutineScope(Dispatchers.IO).launch {
+            if(Controller().obf()) SendInstallLogUseCase(installLogRepository = InstallLogDataRepository(pkg = context.packageName, tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager, join_type = "non-organic")).execute()
+        }
         if(orientation == 1) activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun initWebView (url: String, viewModel: WebViewViewModel, fullscreen: Int, fragmentLayout: FrameLayout, type: String) {
+    private fun initWebView (url: String, fullscreen: Int, fragmentLayout: FrameLayout) {
         val ws: WebSettings = webView.settings
 
         ws.javaScriptEnabled = true     // Поддержка JS
@@ -51,25 +58,13 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
         webView.background = context.getDrawable(R.drawable.bg) // Заменяет белый фон у WebView (фикс мерцания)
 
         webView.webChromeClient = if(fullscreen == 2) webChromeFullScreen(fragmentLayout = fragmentLayout) else webChromeClient()
-        webView.webViewClient = webViewClient(viewModel = viewModel, type = type)
+        webView.webViewClient = WebClient(white = white, context = context)
         webView.loadUrl(url)
         webView.setOnKeyListener { _, keyCode, _ ->
             if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
                 webView.goBack()
                 true
             } else false
-        }
-    }
-    private fun webViewClient(viewModel: WebViewViewModel, type: String) = object : WebViewClient() {
-        override fun onPageFinished(view: WebView, url: String) {
-            super.onPageFinished(view, url)
-            view.evaluateJavascript("(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();") { html: String ->
-                if (html == "\"\\u003Chtml>\\u003Chead>\\u003C/head>\\u003Cbody>\\u003C/body>\\u003C/html>\"")
-                    white.open()
-                else {
-                    if(type == "non-organic") viewModel.saveSharedPrefs(url = url)
-                }
-            }
         }
     }
     private fun webChromeFullScreen(fragmentLayout: FrameLayout) = object : WebChromeClient() {
@@ -87,7 +82,6 @@ class NonOrganicWV(private val webView: WebView, private val context: Context, p
             fragmentLayout.visibility = View.VISIBLE
             fragmentLayout.addView(view)
             mCustomViewCallback = callback!!
-            Utils().setFull(win = activity.window)
         }
         override fun onHideCustomView() {
             if (mCustomView == null) return

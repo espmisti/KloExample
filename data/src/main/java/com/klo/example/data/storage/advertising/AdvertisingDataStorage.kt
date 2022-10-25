@@ -8,6 +8,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class AdvertisingDataStorage(private val context: Context) : AdvertisingStorage{
+
     override fun getADID(): String {
         val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
         return adInfo.id.toString()

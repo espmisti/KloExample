@@ -20,24 +20,20 @@ class Utils {
         if (tag != "nope" && Controller().obf()) Log.i(tag, "[Internet]: ${if (result) "Интернет соединение есть" else "Нету интернет соединения"}")
         return result
     }
-
-    // Создание full screen экрана
-    fun setFull(win: Window, isOrganic: Boolean = true) {
-        if (isOrganic && Controller().obf()){
-            if(Controller().obf()) win.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) win.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+    // Включение/Выключение фулл скрина
+    fun toggleFullScreen(window: Window) {
+        if (window.decorView.systemUiVisibility == View.SYSTEM_UI_FLAG_VISIBLE) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }
-        if(Controller().obf()) win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        val decorView: View = win.decorView
-        val uiOptions: Int = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-        if(Controller().obf()) decorView.systemUiVisibility = uiOptions
-    }
-
-    // Создание toolbar и navigation bar цветными
-    fun setColorScreen(win: Window, context: Context) {
-        if(Controller().obf()) win.navigationBarColor = context.resources.getColor(R.color.navigation)
-        if(Controller().obf()) win.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        if(Controller().obf()) win.statusBarColor = context.resources.getColor(R.color.header)
     }
 
     // Получение shared preference данных

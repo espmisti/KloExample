@@ -15,11 +15,4 @@ class WebClient(private val white: OrganicWV, private val context: Context) : We
             SaveSharedPrefUseCase(sharedPrefRepository = SharedPrefDataRepository(context = context)).execute(url, 0, 1)
         }
     }
-    // Статусы ошибок
-    override fun onReceivedHttpError(view: WebView?, request: WebResourceRequest?, errorResponse: WebResourceResponse?) {
-        super.onReceivedHttpError(view, request, errorResponse)
-        when(errorResponse?.statusCode) {
-            404 -> white.open()
-        }
-    }
 }

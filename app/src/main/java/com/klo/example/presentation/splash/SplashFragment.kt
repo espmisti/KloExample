@@ -79,6 +79,7 @@ class SplashFragment : Fragment() {
     }
 
     private fun initialAppsflyer() {
+        AppsFlyerLib.getInstance().init(getString(R.string.af_dev_key), null, requireActivity().application)
         AppsFlyerLib.getInstance().start(requireActivity().application, getString(R.string.af_dev_key), object : AppsFlyerRequestListener {
             override fun onSuccess() {
                 val listener = object : AppsFlyerConversionListener {
